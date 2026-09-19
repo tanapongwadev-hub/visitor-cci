@@ -94,7 +94,8 @@
 /* แผนก/ฝ่าย: ใช้ css แบบเดียวกับรายชื่อผู้มาติดต่อ (.visitor .names) ทั้งขนาดและตัวหนา — ผูกกับ --host-scale/--host-weight เหมือนชื่อ */
 .host .editable span{font-family:var(--font-montserrat),sans-serif;font-size:calc(17px * var(--font-scale,1) * var(--host-scale,1));color:var(--ink);font-weight:var(--host-weight,600);line-height:1.25;text-transform:uppercase;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* คอลัมน์ผู้รับแขกแบบตารางคลาสสิก */
-.hostColumn{gap:12px!important;align-items:center!important}
+/* จัดวางแบบเดียวกับคอลัมน์ผู้มาติดต่อ (.visitor): บล็อก ชิดบน ระยะห่างบนเท่ากัน */
+.hostColumn{display:block!important;padding-top:14px!important}
 /* โหมดตาราง: ไม่ใส่ไอคอนซ้ำในแต่ละแถว (หัวคอลัมน์ HOST มีไอคอนอยู่แล้ว เหมือนคอลัมน์ VISITOR)
    เพื่อให้ข้อความได้ความกว้างเท่าคอลัมน์ผู้มาติดต่อ และแสดงขนาดตัวอักษรเท่ากัน */
 .hostColumn .avatar{display:none}
