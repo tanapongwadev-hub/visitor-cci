@@ -1,5 +1,5 @@
 import type { DataSource } from "typeorm";
-import { AppDataSource } from "./data-source";
+import { AppDataSource, entities } from "./data-source";
 
 // Next.js hot-reload จะ re-evaluate module — เก็บ DataSource ไว้บน globalThis
 // เพื่อไม่ให้เปิด connection pool ซ้ำทุกครั้งที่แก้โค้ด
@@ -8,10 +8,21 @@ const globalForDb = globalThis as unknown as {
   __dataSourceInit?: Promise<DataSource>;
 };
 
+// หลัง HMR class ของ entity จะเป็นคนละ reference กับที่ DataSource เดิมรู้จัก
+// (EntityMetadataNotFoundError) — ถ้าเจอกรณีนี้ให้ปิด connection เดิมแล้วเปิดใหม่
+function isStale(ds: DataSource): boolean {
+  return entities.some((e) => !ds.hasMetadata(e));
+}
+
 export async function getDataSource(): Promise<DataSource> {
-  if (globalForDb.__dataSource?.isInitialized) {
-    return globalForDb.__dataSource;
+  const cached = globalForDb.__dataSource;
+  if (cached?.isInitialized) {
+    if (!isStale(cached)) return cached;
+    globalForDb.__dataSource = undefined;
+    globalForDb.__dataSourceInit = undefined;
+    await cached.destroy().catch(() => {});
   }
+
   if (!globalForDb.__dataSourceInit) {
     globalForDb.__dataSourceInit = AppDataSource.initialize()
       .then((ds) => {
@@ -27,4 +38,6 @@ export async function getDataSource(): Promise<DataSource> {
   return globalForDb.__dataSourceInit;
 }
 
-export { Visitor } from "./entities/Visitor";
+export { VisitSchedule } from "./entities/VisitSchedule";
+export { Setting } from "./entities/Setting";
+export { MasterItem } from "./entities/MasterItem";

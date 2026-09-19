@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>คู่มือการใช้งาน Visitor Schedule</title>
+<style>
+body{margin:0;font-family:Kanit,"Segoe UI",Tahoma,sans-serif;background:#0f172a;color:#e2e8f0}
+.wrap{max-width:1280px;margin:0 auto;padding:24px 16px;display:grid;gap:20px;grid-template-columns:minmax(0,1fr) 300px}
+@media(max-width:900px){.wrap{grid-template-columns:1fr}}
+h1{font-size:22px;margin:0 0 12px;grid-column:1/-1}
+video{width:100%;border-radius:12px;background:#000;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.ch{background:#1e293b;border-radius:12px;padding:12px;align-self:start}
+.ch h2{font-size:15px;margin:0 0 8px;color:#94a3b8;font-weight:500}
+.ch button{display:flex;gap:10px;width:100%;text-align:left;background:none;border:0;color:#e2e8f0;padding:8px 10px;border-radius:8px;cursor:pointer;font:inherit;font-size:15px}
+.ch button:hover,.ch button.on{background:#0f766e}
+.ch time{color:#5eead4;font-variant-numeric:tabular-nums;min-width:38px}
+p.note{grid-column:1/-1;color:#94a3b8;font-size:14px;margin:0}
+</style></head><body><div class="wrap">
+<h1>คู่มือการใช้งาน Visitor Schedule</h1>
+<video id="v" src="user-guide.webm" controls playsinline></video>
+<div class="ch"><h2>สารบัญ</h2><button data-t="4.5"><time>0:04</time><span>หน้าแรก</span></button><button data-t="10.0"><time>0:10</time><span>ภาพรวมหน้า Admin</span></button><button data-t="18.4"><time>0:18</time><span>เลือกวันที่</span></button><button data-t="23.4"><time>0:23</time><span>เพิ่มรายการนัด</span></button><button data-t="69.5"><time>1:09</time><span>ป้องกันเวลา+ห้องซ้ำ</span></button><button data-t="88.2"><time>1:28</time><span>เรียงลำดับและบันทึก</span></button><button data-t="97.8"><time>1:37</time><span>ตัวอย่างโหมด TV</span></button><button data-t="105.6"><time>1:45</time><span>ข้อมูลหลัก</span></button><button data-t="120.6"><time>2:00</time><span>ตั้งค่า</span></button><button data-t="127.3"><time>2:07</time><span>ธีมสี</span></button><button data-t="142.4"><time>2:22</time><span>หน้าแสดงผล</span></button><button data-t="149.1"><time>2:29</time><span>โหมด TV</span></button></div>
+<p class="note">ไฟล์วิดีโอ: user-guide.webm (เปิดด้วย Chrome / Edge / Firefox / VLC) — สร้างจากแอปจริงด้วย <code>npm run guide:video</code></p>
+</div>
+<script>
+const v=document.getElementById("v"),bs=[...document.querySelectorAll(".ch button")];
+bs.forEach(b=>b.onclick=()=>{v.currentTime=+b.dataset.t;v.play()});
+v.addEventListener("timeupdate",()=>{let cur=null;bs.forEach(b=>{if(v.currentTime>=+b.dataset.t)cur=b});bs.forEach(b=>b.classList.toggle("on",b===cur))});
+</script></body></html>

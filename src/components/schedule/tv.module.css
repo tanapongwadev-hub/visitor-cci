@@ -1,0 +1,8 @@
+.screen{position:relative;width:100vw;height:100vh;overflow:hidden;background:#000;cursor:none}
+.measure{position:absolute;left:0;top:0;width:1024px;visibility:hidden;pointer-events:none;z-index:-1}
+.stage{position:absolute;left:0;top:0;transform-origin:top left;animation:tvFade .6s ease-out}
+@keyframes tvFade{from{opacity:0}to{opacity:1}}
+.dots{position:absolute;left:0;bottom:0;transform-origin:bottom left;width:1024px;display:flex;align-items:center;justify-content:center;gap:10px;padding:0 0 10px;pointer-events:none}
+.dot,.dotActive{width:12px;height:12px;border-radius:50%;background:rgba(255,255,255,.35)}
+.dotActive{background:#fff;box-shadow:0 0 0 2px rgba(0,0,0,.25)}
+.pageLabel{margin-left:6px;font-size:14px;color:rgba(255,255,255,.75);font-family:var(--font-montserrat),sans-serif}
