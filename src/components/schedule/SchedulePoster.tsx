@@ -25,7 +25,7 @@ const kanit = Kanit({
 
 const montserrat = Montserrat({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["300", "400", "500", "600", "700", "800"],
   variable: "--font-montserrat",
   display: "swap",
 });
@@ -60,6 +60,12 @@ export default function SchedulePoster({
     "--ink": t.ink,
     "--page-bg": t.pageBg,
     "--font-scale": s.fontScale || 1,
+    "--visitor-scale": s.visitorScale || 1,
+    "--visitor-weight": s.visitorBold ? 700 : 500,
+    "--host-scale": s.hostScale || 1,
+    "--host-weight": s.hostBold ? 700 : 500,
+    "--room-scale": s.roomScale || 1,
+    "--room-weight": s.roomBold ? 700 : 500,
   } as CSSProperties;
   const timeColors = t.timeColors.length ? t.timeColors : DEFAULT_SETTINGS.theme.timeColors;
   const pageClass = [styles.page, kanit.variable, montserrat.variable, compact ? styles.pageCompact : ""]

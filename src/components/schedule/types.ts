@@ -131,6 +131,13 @@ export type PosterSettings = {
   hostLayout: "table" | "header";
   /** อัตราขยายขนาดตัวอักษรทั้งโปสเตอร์ (1 = ขนาดปกติ, 0.8–1.6) */
   fontScale: number;
+  /** ขนาด/น้ำหนักตัวอักษรแยกต่อส่วน (คูณเพิ่มจาก fontScale อีกที) */
+  visitorScale: number;
+  visitorBold: boolean;
+  hostScale: number;
+  hostBold: boolean;
+  roomScale: number;
+  roomBold: boolean;
   /** ข้อความเมื่อยังไม่ระบุผู้รับแขก */
   defaultHostName: string;
   defaultHostDept: string;
@@ -157,6 +164,12 @@ export const DEFAULT_SETTINGS: PosterSettings = {
   editableHost: false,
   hostLayout: "header",
   fontScale: 1,
+  visitorScale: 1,
+  visitorBold: true,
+  hostScale: 1,
+  hostBold: true,
+  roomScale: 1,
+  roomBold: true,
   defaultHostName: "ระบุชื่อผู้รับแขก",
   defaultHostDept: "ระบุฝ่าย / แผนก",
   theme: DEFAULT_THEME,

@@ -839,6 +839,33 @@ function SettingsTab({
         </div>
       </Card>
 
+      <Card title="ขนาด/ความหนาตัวอักษรแยกส่วน">
+        <div className="flex flex-col gap-3">
+          <TextScaleRow
+            label="ผู้มาติดต่อ (Visitor)"
+            scale={s.visitorScale}
+            bold={s.visitorBold}
+            onScale={(v) => onUpdate({ visitorScale: v })}
+            onBold={(v) => onUpdate({ visitorBold: v })}
+          />
+          <TextScaleRow
+            label="ผู้รับแขก (Host)"
+            scale={s.hostScale}
+            bold={s.hostBold}
+            onScale={(v) => onUpdate({ hostScale: v })}
+            onBold={(v) => onUpdate({ hostBold: v })}
+          />
+          <TextScaleRow
+            label="ห้องประชุม (Room)"
+            scale={s.roomScale}
+            bold={s.roomBold}
+            onScale={(v) => onUpdate({ roomScale: v })}
+            onBold={(v) => onUpdate({ roomBold: v })}
+          />
+          <p className="text-[11px] leading-snug text-zinc-400">คูณเพิ่มจากขนาดตัวอักษรรวมด้านบนอีกที — กด &quot;บันทึก&quot; เพื่อให้มีผลกับหน้าแสดงผลจริง</p>
+        </div>
+      </Card>
+
       <Card title="ส่วนหัว">
         <div className="flex flex-col gap-2">
           <Field label="ข้อความต้อนรับ">
@@ -974,6 +1001,47 @@ function Card({ title, actions, children }: { title: string; actions?: React.Rea
         {actions ? <div className="ml-auto flex gap-1">{actions}</div> : null}
       </div>
       {children}
+    </div>
+  );
+}
+
+/** แถวปรับขนาด (คูณเพิ่มจาก fontScale) + ตัวหนา สำหรับข้อความส่วนใดส่วนหนึ่งของโปสเตอร์ */
+function TextScaleRow({
+  label,
+  scale,
+  bold,
+  onScale,
+  onBold,
+}: {
+  label: string;
+  scale: number;
+  bold: boolean;
+  onScale: (v: number) => void;
+  onBold: (v: boolean) => void;
+}) {
+  return (
+    <div className="flex flex-col gap-1">
+      <div className="flex items-center justify-between text-xs text-zinc-500">
+        <span>{label}</span>
+        <label className="flex items-center gap-1 text-zinc-700 dark:text-zinc-300">
+          <input type="checkbox" checked={bold} onChange={(e) => onBold(e.target.checked)} />
+          ตัวหนา
+        </label>
+      </div>
+      <div className="flex items-center gap-3">
+        <input
+          type="range"
+          min={0.8}
+          max={1.6}
+          step={0.05}
+          value={scale}
+          onChange={(e) => onScale(Number(e.target.value))}
+          className="h-1.5 flex-1 accent-teal-700"
+        />
+        <span className="w-12 shrink-0 text-right text-sm tabular-nums text-zinc-600 dark:text-zinc-300">
+          {Math.round(scale * 100)}%
+        </span>
+      </div>
     </div>
   );
 }
