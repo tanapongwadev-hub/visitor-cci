@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // เปิด output file tracing แบบ standalone สำหรับ deploy ผ่าน Docker
+  output: "standalone",
+
   // TypeORM ใช้ dynamic require + decorators — ต้องให้ Node โหลดโดยตรง ไม่ผ่าน bundler
   serverExternalPackages: ["typeorm", "pg", "reflect-metadata"],
 
