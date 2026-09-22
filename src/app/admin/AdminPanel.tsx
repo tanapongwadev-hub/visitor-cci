@@ -475,8 +475,6 @@ export default function AdminPanel({ initialSchedule, initialSettings, initialDa
               onUpdate={updateSettings}
               onUpdateFooter={updateFooter}
               onChangeHostLayout={changeHostLayout}
-              onChangeFontScale={changeFontScale}
-              onChangeTextScale={changeTextScale}
               onSave={saveSettings}
               onReset={resetSettings}
               onDiscard={() => setSettings(JSON.parse(savedSettings))}
@@ -486,6 +484,14 @@ export default function AdminPanel({ initialSchedule, initialSettings, initialDa
 
         {/* right: live preview */}
         <section className="mx-auto w-full max-w-[880px] min-w-0">
+          <div className="mb-3">
+            <FontSizeCard
+              settings={settings}
+              onChangeFontScale={changeFontScale}
+              onChangeTextScale={changeTextScale}
+            />
+          </div>
+
           <div className="mb-2 flex flex-wrap items-center gap-2 text-sm text-zinc-500">
             <span>
               ตัวอย่างสด — {formatDateLabel(date)} · {rows.length} รายการ
@@ -831,12 +837,6 @@ type SettingsTabProps = {
   onUpdate: (patch: Partial<PosterSettings>) => void;
   onUpdateFooter: (i: number, patch: Partial<PosterSettings["footerItems"][number]>) => void;
   onChangeHostLayout: (v: PosterSettings["hostLayout"]) => void;
-  onChangeFontScale: (v: number) => void;
-  onChangeTextScale: (
-    patch: Partial<
-      Pick<PosterSettings, "visitorScale" | "visitorBold" | "hostScale" | "hostBold" | "roomScale" | "roomBold">
-    >,
-  ) => void;
   onSave: () => void;
   onReset: () => void;
   onDiscard: () => void;
@@ -849,70 +849,12 @@ function SettingsTab({
   onUpdate,
   onUpdateFooter,
   onChangeHostLayout,
-  onChangeFontScale,
-  onChangeTextScale,
   onSave,
   onReset,
   onDiscard,
 }: SettingsTabProps) {
   return (
     <>
-      <Card title="ขนาดตัวอักษร">
-        <div className="flex flex-col gap-1.5">
-          <div className="flex items-center gap-3">
-            <input
-              type="range"
-              min={0.8}
-              max={2}
-              step={0.05}
-              value={s.fontScale}
-              onChange={(e) => onChangeFontScale(Number(e.target.value))}
-              className="h-1.5 flex-1 accent-teal-700"
-            />
-            <span className="w-12 shrink-0 text-right text-sm tabular-nums text-zinc-600 dark:text-zinc-300">
-              {Math.round(s.fontScale * 100)}%
-            </span>
-          </div>
-          <div className="flex items-center justify-between">
-            <button className={btnCls} onClick={() => onChangeFontScale(1)} disabled={s.fontScale === 1}>
-              รีเซ็ตเป็น 100%
-            </button>
-            <p className="text-[11px] leading-snug text-zinc-400">
-              เลื่อนแล้วมีผลกับ preview และหน้าแสดงผลจริงทันที ไม่ต้องกด &quot;บันทึก&quot;
-            </p>
-          </div>
-        </div>
-      </Card>
-
-      <Card title="ขนาด/ความหนาตัวอักษรแยกส่วน">
-        <div className="flex flex-col gap-3">
-          <TextScaleRow
-            label="ผู้มาติดต่อ (Visitor)"
-            scale={s.visitorScale}
-            bold={s.visitorBold}
-            onScale={(v) => onChangeTextScale({ visitorScale: v })}
-            onBold={(v) => onChangeTextScale({ visitorBold: v })}
-          />
-          <TextScaleRow
-            label="ผู้รับแขก (Host)"
-            scale={s.hostScale}
-            bold={s.hostBold}
-            onScale={(v) => onChangeTextScale({ hostScale: v })}
-            onBold={(v) => onChangeTextScale({ hostBold: v })}
-          />
-          <TextScaleRow
-            label="ห้องประชุม (Room)"
-            scale={s.roomScale}
-            bold={s.roomBold}
-            onScale={(v) => onChangeTextScale({ roomScale: v })}
-            onBold={(v) => onChangeTextScale({ roomBold: v })}
-          />
-          <p className="text-[11px] leading-snug text-zinc-400">
-            คูณเพิ่มจากขนาดตัวอักษรรวมด้านบนอีกที — เลื่อนแล้วมีผลกับ preview และหน้าแสดงผลจริงทันที ไม่ต้องกด &quot;บันทึก&quot;
-          </p>
-        </div>
-      </Card>
-
       <Card title="ส่วนหัว">
         <div className="flex flex-col gap-2">
           <Field label="ข้อความต้อนรับ">
@@ -1039,6 +981,80 @@ function SettingsTab({
 }
 
 /* ------------------------------------------------------------------ */
+
+/** การ์ดปรับขนาดตัวอักษร วางไว้บนหัว card preview เพื่อปรับแล้วเห็นผลทันทีข้างๆ กัน */
+function FontSizeCard({
+  settings: s,
+  onChangeFontScale,
+  onChangeTextScale,
+}: {
+  settings: PosterSettings;
+  onChangeFontScale: (v: number) => void;
+  onChangeTextScale: (
+    patch: Partial<
+      Pick<PosterSettings, "visitorScale" | "visitorBold" | "hostScale" | "hostBold" | "roomScale" | "roomBold">
+    >,
+  ) => void;
+}) {
+  return (
+    <Card title="ขนาดตัวอักษร">
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1.5">
+          <div className="flex items-center gap-3">
+            <input
+              type="range"
+              min={0.8}
+              max={2}
+              step={0.05}
+              value={s.fontScale}
+              onChange={(e) => onChangeFontScale(Number(e.target.value))}
+              className="h-1.5 flex-1 accent-teal-700"
+            />
+            <span className="w-12 shrink-0 text-right text-sm tabular-nums text-zinc-600 dark:text-zinc-300">
+              {Math.round(s.fontScale * 100)}%
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <button className={btnCls} onClick={() => onChangeFontScale(1)} disabled={s.fontScale === 1}>
+              รีเซ็ตเป็น 100%
+            </button>
+            <p className="text-[11px] leading-snug text-zinc-400">
+              เลื่อนแล้วมีผลกับ preview และหน้าแสดงผลจริงทันที ไม่ต้องกด &quot;บันทึก&quot;
+            </p>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-3 border-t border-zinc-200 pt-3 dark:border-zinc-700">
+          <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">ขนาด/ความหนาตัวอักษรแยกส่วน</p>
+          <TextScaleRow
+            label="ผู้มาติดต่อ (Visitor)"
+            scale={s.visitorScale}
+            bold={s.visitorBold}
+            onScale={(v) => onChangeTextScale({ visitorScale: v })}
+            onBold={(v) => onChangeTextScale({ visitorBold: v })}
+          />
+          <TextScaleRow
+            label="ผู้รับแขก (Host)"
+            scale={s.hostScale}
+            bold={s.hostBold}
+            onScale={(v) => onChangeTextScale({ hostScale: v })}
+            onBold={(v) => onChangeTextScale({ hostBold: v })}
+          />
+          <TextScaleRow
+            label="ห้องประชุม (Room)"
+            scale={s.roomScale}
+            bold={s.roomBold}
+            onScale={(v) => onChangeTextScale({ roomScale: v })}
+            onBold={(v) => onChangeTextScale({ roomBold: v })}
+          />
+          <p className="text-[11px] leading-snug text-zinc-400">
+            คูณเพิ่มจากขนาดตัวอักษรรวมด้านบนอีกที — เลื่อนแล้วมีผลกับ preview และหน้าแสดงผลจริงทันที ไม่ต้องกด &quot;บันทึก&quot;
+          </p>
+        </div>
+      </div>
+    </Card>
+  );
+}
 
 function Card({ title, actions, children }: { title: string; actions?: React.ReactNode; children: React.ReactNode }) {
   return (
