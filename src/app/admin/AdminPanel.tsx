@@ -83,7 +83,7 @@ const btnPrimaryCls =
 export default function AdminPanel({ initialSchedule, initialSettings, initialDates, initialMaster, today }: Props) {
   const router = useRouter();
   const [tab, setTab] = useState<Tab>("schedule");
-  const [previewMode, setPreviewMode] = useState<"poster" | "tv">("poster");
+  const [previewMode, setPreviewMode] = useState<"poster" | "tv" | "tv40">("poster");
   const [date, setDate] = useState(initialSchedule.date);
   const [rows, setRows] = useState<RowDraft[]>(() => toDrafts(initialSchedule));
   const [savedRows, setSavedRows] = useState(() => JSON.stringify(toDrafts(initialSchedule)));
@@ -478,6 +478,7 @@ export default function AdminPanel({ initialSchedule, initialSettings, initialDa
                   [
                     ["poster", "โปสเตอร์"],
                     ["tv", `TV 55" แนวตั้ง (${TV_PORTRAIT.width}×${TV_PORTRAIT.height})`],
+                    ["tv40", `TV 40" แนวตั้ง (${TV_PORTRAIT.width}×${TV_PORTRAIT.height})`],
                   ] as const
                 ).map(([m, label]) => (
                   <button
@@ -505,7 +506,7 @@ export default function AdminPanel({ initialSchedule, initialSettings, initialDa
               </ScaledPreview>
             )}
           </div>
-          {previewMode === "tv" ? (
+          {previewMode === "tv" || previewMode === "tv40" ? (
             <p className="mt-2 text-xs text-zinc-500">
               ถ้ารายการเกินหนึ่งหน้า จะสลับหน้าทุก {settings.tvPageIntervalSec} วินาที (ตั้งค่าได้ในแท็บ ตั้งค่า) —
               บนจอจริงเปิด <code>{tvUrl}</code> แบบเต็มจอ
@@ -818,7 +819,7 @@ function SettingsTab({
             <input
               type="range"
               min={0.8}
-              max={1.6}
+              max={2}
               step={0.05}
               value={s.fontScale}
               onChange={(e) => onChangeFontScale(Number(e.target.value))}
@@ -1032,7 +1033,7 @@ function TextScaleRow({
         <input
           type="range"
           min={0.8}
-          max={1.6}
+          max={2}
           step={0.05}
           value={scale}
           onChange={(e) => onScale(Number(e.target.value))}
