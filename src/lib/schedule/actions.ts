@@ -196,6 +196,7 @@ export async function savePosterSettings(input: PosterSettings): Promise<PosterS
   const ds = await getDataSource();
   await ds.getRepository(Setting).save({ key: SETTINGS_KEY, value });
   revalidatePath("/schedule");
+  revalidatePath("/tv");
   revalidatePath("/admin");
   return getPosterSettings();
 }
@@ -210,6 +211,16 @@ export async function setHostLayout(hostLayout: PosterSettings["hostLayout"]): P
 export async function setFontScale(fontScale: number): Promise<PosterSettings> {
   const current = await getPosterSettings();
   return savePosterSettings({ ...current, fontScale });
+}
+
+/** ปรับขนาด/ความหนาตัวอักษรแยกส่วน (visitor/host/room) แล้วบันทึกทันที (debounce จากฝั่ง client) โดยไม่แตะฟิลด์อื่นที่ยังแก้ไม่บันทึก */
+export async function setTextScale(
+  patch: Partial<
+    Pick<PosterSettings, "visitorScale" | "visitorBold" | "hostScale" | "hostBold" | "roomScale" | "roomBold">
+  >,
+): Promise<PosterSettings> {
+  const current = await getPosterSettings();
+  return savePosterSettings({ ...current, ...patch });
 }
 
 export async function resetPosterSettings(): Promise<PosterSettings> {

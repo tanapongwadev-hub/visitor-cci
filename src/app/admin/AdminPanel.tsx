@@ -20,6 +20,7 @@ import {
   saveSchedule,
   setFontScale,
   setHostLayout,
+  setTextScale,
   type RowInput,
 } from "@/lib/schedule/actions";
 import ScaledPreview from "./ScaledPreview";
@@ -281,6 +282,25 @@ export default function AdminPanel({ initialSchedule, initialSettings, initialDa
       });
     }, 400);
   }
+  // ขนาด/ความหนาตัวอักษรแยกส่วน (visitor/host/room): อัปเดต preview ทันที แล้ว debounce บันทึกลงฐานข้อมูล
+  // เช่นเดียวกับ fontScale เพื่อให้จอ TV เครื่องอื่นเห็นผลโดยไม่ต้องกด "บันทึก"
+  const textScaleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => {
+    if (textScaleTimer.current) clearTimeout(textScaleTimer.current);
+  }, []);
+  function changeTextScale(patch: Parameters<typeof setTextScale>[0]) {
+    setSettings((s) => ({ ...s, ...patch }));
+    if (textScaleTimer.current) clearTimeout(textScaleTimer.current);
+    textScaleTimer.current = setTimeout(() => {
+      run(async () => {
+        const saved = await setTextScale(patch);
+        const savedPatch = Object.fromEntries(
+          Object.keys(patch).map((k) => [k, saved[k as keyof PosterSettings]]),
+        );
+        setSavedSettings((prev) => JSON.stringify({ ...JSON.parse(prev), ...savedPatch }));
+      });
+    }, 400);
+  }
 
   // ---------- master data ----------
   function masterCreate(type: MasterType, name: string, detail = "") {
@@ -439,6 +459,7 @@ export default function AdminPanel({ initialSchedule, initialSettings, initialDa
               onUpdateFooter={updateFooter}
               onChangeHostLayout={changeHostLayout}
               onChangeFontScale={changeFontScale}
+              onChangeTextScale={changeTextScale}
               onSave={saveSettings}
               onReset={resetSettings}
               onDiscard={() => setSettings(JSON.parse(savedSettings))}
@@ -794,6 +815,11 @@ type SettingsTabProps = {
   onUpdateFooter: (i: number, patch: Partial<PosterSettings["footerItems"][number]>) => void;
   onChangeHostLayout: (v: PosterSettings["hostLayout"]) => void;
   onChangeFontScale: (v: number) => void;
+  onChangeTextScale: (
+    patch: Partial<
+      Pick<PosterSettings, "visitorScale" | "visitorBold" | "hostScale" | "hostBold" | "roomScale" | "roomBold">
+    >,
+  ) => void;
   onSave: () => void;
   onReset: () => void;
   onDiscard: () => void;
@@ -807,6 +833,7 @@ function SettingsTab({
   onUpdateFooter,
   onChangeHostLayout,
   onChangeFontScale,
+  onChangeTextScale,
   onSave,
   onReset,
   onDiscard,
@@ -846,24 +873,26 @@ function SettingsTab({
             label="ผู้มาติดต่อ (Visitor)"
             scale={s.visitorScale}
             bold={s.visitorBold}
-            onScale={(v) => onUpdate({ visitorScale: v })}
-            onBold={(v) => onUpdate({ visitorBold: v })}
+            onScale={(v) => onChangeTextScale({ visitorScale: v })}
+            onBold={(v) => onChangeTextScale({ visitorBold: v })}
           />
           <TextScaleRow
             label="ผู้รับแขก (Host)"
             scale={s.hostScale}
             bold={s.hostBold}
-            onScale={(v) => onUpdate({ hostScale: v })}
-            onBold={(v) => onUpdate({ hostBold: v })}
+            onScale={(v) => onChangeTextScale({ hostScale: v })}
+            onBold={(v) => onChangeTextScale({ hostBold: v })}
           />
           <TextScaleRow
             label="ห้องประชุม (Room)"
             scale={s.roomScale}
             bold={s.roomBold}
-            onScale={(v) => onUpdate({ roomScale: v })}
-            onBold={(v) => onUpdate({ roomBold: v })}
+            onScale={(v) => onChangeTextScale({ roomScale: v })}
+            onBold={(v) => onChangeTextScale({ roomBold: v })}
           />
-          <p className="text-[11px] leading-snug text-zinc-400">คูณเพิ่มจากขนาดตัวอักษรรวมด้านบนอีกที — กด &quot;บันทึก&quot; เพื่อให้มีผลกับหน้าแสดงผลจริง</p>
+          <p className="text-[11px] leading-snug text-zinc-400">
+            คูณเพิ่มจากขนาดตัวอักษรรวมด้านบนอีกที — เลื่อนแล้วมีผลกับ preview และหน้าแสดงผลจริงทันที ไม่ต้องกด &quot;บันทึก&quot;
+          </p>
         </div>
       </Card>
 
