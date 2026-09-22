@@ -67,6 +67,10 @@ export default function SchedulePoster({
     "--room-scale": s.roomScale || 1,
     "--room-weight": s.roomBold ? 700 : 500,
   } as CSSProperties;
+  // ให้ FitText วัดขนาดใหม่ทุกครั้งที่ตัวคูณขนาด/น้ำหนักตัวอักษรเปลี่ยน (ไม่งั้น inline font-size ที่ย่อไว้จะค้าง)
+  const fitKey = [
+    s.fontScale, s.visitorScale, s.visitorBold, s.hostScale, s.hostBold, s.roomScale, s.roomBold, s.hostLayout,
+  ].join("|");
   const timeColors = t.timeColors.length ? t.timeColors : DEFAULT_SETTINGS.theme.timeColors;
   const pageClass = [styles.page, kanit.variable, montserrat.variable, compact ? styles.pageCompact : ""]
     .filter(Boolean)
@@ -83,10 +87,10 @@ export default function SchedulePoster({
       </span>
       <div className={styles.editable} contentEditable={s.editableHost} suppressContentEditableWarning>
         <strong>
-          <FitText>{row.hostName || s.defaultHostName}</FitText>
+          <FitText fitKey={fitKey}>{row.hostName || s.defaultHostName}</FitText>
         </strong>
         <span>
-          <FitText>{row.hostDept || s.defaultHostDept}</FitText>
+          <FitText fitKey={fitKey}>{row.hostDept || s.defaultHostDept}</FitText>
         </span>
       </div>
     </>
@@ -151,19 +155,19 @@ export default function SchedulePoster({
               {!isTableLayout ? <div className={styles.host}>{host(row)}</div> : null}
 
               <div className={styles["time-box"]}>
-                <FitText>{row.time}</FitText>
+                <FitText fitKey={fitKey} maxLines={1}>{row.time}</FitText>
               </div>
 
               <div className={styles.visitor}>
                 <strong>
-                  <FitText>{row.company}</FitText>
+                  <FitText fitKey={fitKey}>{row.company}</FitText>
                 </strong>
                 {row.visitorNames.length > 0 ? (
                   <div
                     className={`${styles.names} ${row.visitorNames.length > 5 ? styles.namesCols : ""}`}
                   >
                     {row.visitorNames.map((name, j) => (
-                      <FitText key={j}>{name}</FitText>
+                      <FitText key={j} fitKey={fitKey}>{name}</FitText>
                     ))}
                   </div>
                 ) : null}
@@ -177,7 +181,7 @@ export default function SchedulePoster({
                   <span className={styles["room-icon"]}>
                     <DoorIcon className={styles["svg-icon"]} />
                   </span>
-                  <FitText className={styles["room-text"]}>{row.room}</FitText>
+                  <FitText className={styles["room-text"]} fitKey={fitKey}>{row.room}</FitText>
                 </div>
               </div>
             </div>

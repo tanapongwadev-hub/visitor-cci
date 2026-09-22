@@ -42,10 +42,14 @@
  * ทุกแถวจึงเรียงตรงกันและค่าแสดงเต็มขนาดโดยไม่ตกบรรทัด — คอลัมน์ผู้มาติดต่อ แบ่งพื้นที่ที่เหลือ
  * ผู้รับแขกแสดงเป็นแถบหัวของแต่ละ record แทนการเป็นคอลัมน์
  */
-.schedule{position:relative;z-index:2;margin:0 36px 28px;border-radius:22px;background:transparent;box-shadow:none;display:grid;grid-template-columns:fit-content(260px) minmax(0,1fr) fit-content(360px);row-gap:24px}
+/* เพดานความกว้างคอลัมน์ห้อง: 360px ที่สเกล 100% แล้วลดลงเมื่อสเกลรวมสูงขึ้น (260px ที่ 200%) — ไม่งั้นคอลัมน์เวลา+ห้องกินที่จนผู้มาติดต่อ/ผู้รับแขกเหลือไม่พอ */
+/* ช่องว่างแนวนอน (padding/margin ของเซลล์) โตตามสเกลได้ไม่เกิน 1.25 เท่า — ที่สเกลสูง โปสเตอร์ยังกว้าง 1024 เท่าเดิม จึงเก็บพื้นที่ไว้ให้ตัวอักษร */
+.schedule,.scheduleTable{--gap-scale:min(var(--font-scale,1),1.25)}
+.schedule,.scheduleTable{--room-col-max:calc(460px - 100px * var(--font-scale,1))}
+.schedule{position:relative;z-index:2;margin:0 36px 28px;border-radius:22px;background:transparent;box-shadow:none;display:grid;grid-template-columns:fit-content(260px) minmax(0,1fr) fit-content(var(--room-col-max));row-gap:24px}
 /* โหมดตาราง (คลาสสิก): ผู้รับแขกเป็นคอลัมน์ในตารางเดียวกับเวลา/ผู้มาติดต่อ/ห้อง เหมือนดีไซน์เดิม */
 /* คอลัมน์ ผู้มาติดต่อ กับ ผู้รับแขก กว้างเท่ากัน เพื่อให้ตัวอักษรสองฝั่งแสดงขนาดเดียวกัน (FitText ย่อตามความกว้างที่มี) */
-.scheduleTable{position:relative;z-index:2;margin:0 36px 28px;border-radius:22px;overflow:hidden;background:#fff;box-shadow:0 14px 34px var(--shadow);display:grid;grid-template-columns:fit-content(260px) minmax(0,1.45fr) minmax(0,1.45fr) fit-content(360px)}
+.scheduleTable{position:relative;z-index:2;margin:0 36px 28px;border-radius:22px;overflow:hidden;background:#fff;box-shadow:0 14px 34px var(--shadow);display:grid;grid-template-columns:fit-content(260px) minmax(0,1.45fr) minmax(0,1.45fr) fit-content(var(--room-col-max))}
 .grid-header,.row,.rowTable{display:grid;grid-column:1/-1;grid-template-columns:subgrid;align-items:stretch}
 @supports not (grid-template-columns:subgrid){
   .schedule,.scheduleTable{display:block}
@@ -64,20 +68,20 @@
 /* แต่ละ record เป็นการ์ดเดียว: แถบผู้รับแขก + เวลา/ผู้มาติดต่อ/ห้อง ถูกกลุ่มไว้ในกรอบเดียวกัน
    ขอบซ้ายสีเดียวกับกล่องเวลาของแถวนั้น ใช้ผูกแถบผู้รับแขกกับเนื้อหาให้เห็นชัดว่าเป็น record เดียวกัน */
 .row{--tc:#22988d;min-height:calc(148px * var(--font-scale,1));background:rgba(255,255,255,.96);border-radius:18px;overflow:hidden;box-shadow:0 10px 26px var(--shadow);border:1px solid var(--line);border-left:8px solid var(--tc)}
-.row>div{padding:calc(14px * var(--font-scale,1)) calc(18px * var(--font-scale,1));display:flex;align-items:center;border-right:1px solid var(--line);min-width:0}
+.row>div{padding:calc(14px * var(--font-scale,1)) calc(18px * var(--gap-scale,1));display:flex;align-items:center;border-right:1px solid var(--line);min-width:0}
 .row>div:last-child{border-right:0}
 /* แถวแบบตารางคลาสสิก */
 .rowTable{--tc:#22988d;min-height:calc(108px * var(--font-scale,1));background:rgba(255,255,255,.96);border-bottom:1px solid var(--line)}
 .rowTable:last-child{border-bottom:0}
-.rowTable>div{padding:calc(14px * var(--font-scale,1)) calc(18px * var(--font-scale,1));display:flex;align-items:center;border-right:1px solid var(--line);min-width:0}
+.rowTable>div{padding:calc(14px * var(--font-scale,1)) calc(18px * var(--gap-scale,1));display:flex;align-items:center;border-right:1px solid var(--line);min-width:0}
 .rowTable>div:last-child{border-right:0}
 /* หมายเหตุ: ห้ามประกาศ --tc ซ้ำในนี้ — ต้องรับค่าจริงที่สืบทอดมาจาก .row/.rowTable (inline style ต่อแถว) เท่านั้น
    ไม่งั้นสีจะกลายเป็นค่า fallback คงที่ ไม่ตรงกับสีที่ตั้งไว้ในธีม/ต่อแถว */
-.time-box{white-space:nowrap;justify-content:center!important;margin:calc(12px * var(--font-scale,1)) calc(16px * var(--font-scale,1));padding:0 calc(10px * var(--font-scale,1))!important;border:0!important;border-radius:15px;color:#fff;font-family:var(--font-montserrat),sans-serif;font-size:calc(28px * var(--font-scale,1));font-weight:700;box-shadow:inset 0 0 0 1px rgba(255,255,255,.2);background:linear-gradient(135deg,var(--tc),color-mix(in srgb,var(--tc) 78%,black))}
+.time-box{white-space:nowrap;justify-content:center!important;margin:calc(12px * var(--font-scale,1)) calc(16px * var(--gap-scale,1));padding:0 calc(10px * var(--gap-scale,1))!important;border:0!important;border-radius:15px;color:#fff;font-family:var(--font-montserrat),sans-serif;font-size:calc(28px * var(--font-scale,1));font-weight:700;box-shadow:inset 0 0 0 1px rgba(255,255,255,.2);background:linear-gradient(135deg,var(--tc),color-mix(in srgb,var(--tc) 78%,black))}
 /* ต้องชนะ .row>div{min-width:0} */
-.row>.time-box,.rowTable>.time-box{min-width:calc(138px * var(--font-scale,1))}
+.row>.time-box,.rowTable>.time-box{min-width:138px}
 .visitor{display:block!important;padding-top:14px!important}
-.visitor strong{font-family:var(--font-montserrat),var(--font-kanit),sans-serif;font-size:calc(25px * var(--font-scale,1) * var(--visitor-scale,1));display:block;line-height:1.18;color:var(--ink);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.visitor strong{font-family:var(--font-montserrat),var(--font-kanit),sans-serif;font-size:calc(25px * var(--font-scale,1) * var(--visitor-scale,1));display:block;line-height:1.18;color:var(--ink);font-weight:var(--visitor-weight,700);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .visitor .names{font-family:var(--font-montserrat),sans-serif;font-size:calc(17px * var(--font-scale,1) * var(--visitor-scale,1));line-height:1.25;color:var(--ink);font-weight:var(--visitor-weight,600);margin-top:5px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* รายชื่อยาว (>5 บรรทัด) แสดง 2 คอลัมน์ให้แถวไม่สูงเกิน */
 .visitor .namesCols{columns:2;column-gap:18px}
@@ -85,14 +89,14 @@
 .visitor .label{font-family:var(--font-montserrat),sans-serif;font-size:calc(14px * var(--font-scale,1));letter-spacing:1px;color:var(--ink-3);margin-top:4px;white-space:nowrap}
 /* แถบหัวของแต่ละ record: แสดงผู้รับแขก เต็มความกว้างแถว เหนือ เวลา/ผู้มาติดต่อ/ห้อง ในกรอบการ์ดเดียวกัน
    สีพื้นแถบไล่จากสีขอบซ้าย (--tc) ของการ์ดนั้น เพื่อให้เห็นชัดว่าแถบนี้เป็นของ record ไหน */
-.host{grid-column:1/-1;gap:10px!important;align-items:center!important;padding:calc(10px * var(--font-scale,1)) calc(18px * var(--font-scale,1))!important;background:color-mix(in srgb,var(--tc) 16%,white);border-right:0!important;border-bottom:1px solid var(--line)}
+.host{grid-column:1/-1;gap:10px!important;align-items:center!important;padding:calc(10px * var(--font-scale,1)) calc(18px * var(--gap-scale,1))!important;background:color-mix(in srgb,var(--tc) 16%,white);border-right:0!important;border-bottom:1px solid var(--line)}
 .host .avatar{width:calc(32px * var(--font-scale,1));height:calc(32px * var(--font-scale,1));display:inline-flex;align-items:center;justify-content:center;color:color-mix(in srgb,var(--tc) 78%,black);opacity:.95;flex:0 0 auto}.host .avatar .svg-icon{width:calc(28px * var(--font-scale,1));height:calc(28px * var(--font-scale,1));stroke-width:1.9}
 /* ต้องให้กล่องข้อความกินพื้นที่ที่เหลือของเซลล์ (flex:1) ไม่งั้นกล่องจะแคบและ FitText จะย่อตัวอักษรลงจนเล็กกว่าฝั่งผู้มาติดต่อ */
 .host .editable{flex:1 1 auto;min-width:0;overflow:hidden;display:flex;align-items:baseline;gap:10px}
 /* รูปแบบ/ขนาด/น้ำหนักเริ่มต้นเดียวกับชื่อผู้มาติดต่อ (.visitor strong) — ต่างกันแค่ตัวคูณ (--host-scale/--host-weight) แยกปรับได้ */
 .host .editable strong{font-family:var(--font-montserrat),var(--font-kanit),sans-serif;font-size:calc(25px * var(--font-scale,1) * var(--host-scale,1));display:block;color:var(--ink);font-weight:var(--host-weight,700);line-height:1.28;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* แผนก/ฝ่าย: ใช้ css แบบเดียวกับรายชื่อผู้มาติดต่อ (.visitor .names) ทั้งขนาดและตัวหนา — ผูกกับ --host-scale/--host-weight เหมือนชื่อ */
-.host .editable span{font-family:var(--font-montserrat),sans-serif;font-size:calc(17px * var(--font-scale,1) * var(--host-scale,1));color:var(--ink);font-weight:var(--host-weight,600);line-height:1.25;text-transform:uppercase;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.host .editable > span{font-family:var(--font-montserrat),sans-serif;font-size:calc(17px * var(--font-scale,1) * var(--host-scale,1));color:var(--ink);font-weight:var(--host-weight,600);line-height:1.25;text-transform:uppercase;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* คอลัมน์ผู้รับแขกแบบตารางคลาสสิก */
 /* จัดวางแบบเดียวกับคอลัมน์ผู้มาติดต่อ (.visitor): บล็อก ชิดบน ระยะห่างบนเท่ากัน */
 .hostColumn{display:block!important;padding-top:14px!important}
@@ -104,11 +108,11 @@
 /* รูปแบบ/ขนาด/น้ำหนักเริ่มต้นเดียวกับชื่อผู้มาติดต่อ (.visitor strong) — ต่างกันแค่ตัวคูณ (--host-scale/--host-weight) แยกปรับได้ */
 .hostColumn .editable strong{font-family:var(--font-montserrat),var(--font-kanit),sans-serif;font-size:calc(25px * var(--font-scale,1) * var(--host-scale,1));display:block;color:var(--ink);font-weight:var(--host-weight,700);line-height:1.28;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* แผนก/ฝ่าย: ใช้ css แบบเดียวกับรายชื่อผู้มาติดต่อ (.visitor .names) ทั้งขนาดและตัวหนา — ผูกกับ --host-scale/--host-weight เหมือนชื่อ */
-.hostColumn .editable span{font-family:var(--font-montserrat),sans-serif;font-size:calc(17px * var(--font-scale,1) * var(--host-scale,1));color:var(--ink);font-weight:var(--host-weight,600);line-height:1.25;margin-top:5px;text-transform:uppercase;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hostColumn .editable > span{font-family:var(--font-montserrat),sans-serif;font-size:calc(17px * var(--font-scale,1) * var(--host-scale,1));color:var(--ink);font-weight:var(--host-weight,600);line-height:1.25;margin-top:5px;text-transform:uppercase;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .editable[contenteditable="true"]{outline:none;border-radius:7px;padding:3px 6px;margin-left:-6px}
 .editable[contenteditable="true"]:hover,.editable[contenteditable="true"]:focus{background:#fff7cf;box-shadow:0 0 0 1px #e4cf72 inset}
 .room{justify-content:center!important}
-.room-badge{width:100%;min-width:134px;padding:calc(11px * var(--font-scale,1)) calc(12px * var(--font-scale,1));border-radius:13px;background:linear-gradient(90deg,var(--tint-8),var(--tint-12));text-align:center;font-family:var(--font-montserrat),sans-serif;font-size:calc(20px * var(--font-scale,1) * var(--room-scale,1));font-weight:var(--room-weight,700);color:var(--ink);display:flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;min-width:0}
+.room-badge{width:100%;min-width:134px;padding:calc(11px * var(--font-scale,1)) calc(12px * var(--gap-scale,1));border-radius:13px;background:linear-gradient(90deg,var(--tint-8),var(--tint-12));text-align:center;font-family:var(--font-montserrat),sans-serif;font-size:calc(20px * var(--font-scale,1) * var(--room-scale,1));font-weight:var(--room-weight,700);color:var(--ink);display:flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;min-width:0}
 .room-badge .room-text{min-width:0;flex:0 1 auto}.room-icon{width:calc(23px * var(--font-scale,1));height:calc(23px * var(--font-scale,1));display:inline-flex;color:var(--primary-dark)}.room-icon .svg-icon{width:100%;height:100%;stroke-width:1.8}
 .thanks{text-align:center;padding:0 20px 20px;color:var(--ink)}
 .thanks-en{display:flex;align-items:center;justify-content:center;gap:20px;white-space:nowrap;font-family:var(--font-montserrat),sans-serif;letter-spacing:5px;font-size:calc(19px * var(--font-scale,1))}
@@ -122,8 +126,4 @@
 .footer .en{font-family:var(--font-montserrat),sans-serif;letter-spacing:4px;font-size:calc(17px * var(--font-scale,1));margin-top:12px;white-space:nowrap}
 .footer .th{font-family:var(--font-kanit),sans-serif;font-size:calc(17px * var(--font-scale,1));font-weight:400;margin-top:4px}
 .edit-note{position:absolute;left:14px;bottom:12px;font-size:11px;color:rgba(255,255,255,.55)}
-@media(max-width:760px){
- .poster{min-height:auto} .header{padding:18px 18px 12px} .logo{width:125px;height:118px} .motto{display:none} .header h1{font-size:28px} .thai-company{font-size:21px} .welcome{font-size:16px;letter-spacing:4px} .date-line{font-size:20px}
- .schedule{margin:0 12px 18px;row-gap:12px;grid-template-columns:fit-content(150px) minmax(0,1fr) fit-content(200px)} .scheduleTable{margin:0 12px 18px;grid-template-columns:fit-content(150px) minmax(0,1.4fr) minmax(0,1.1fr) fit-content(200px)} .row>.time-box,.rowTable>.time-box{min-width:88px} .room-badge{min-width:80px} .grid-header>div{font-size:14px;gap:4px;padding:0 4px;white-space:normal;text-align:center} .grid-header .icon-wrap{width:32px;height:32px;border-radius:8px} .header-small{font-size:11px} .icon{width:28px;height:28px;font-size:14px;border-width:2px} .row{min-height:120px} .row>div{padding:10px} .rowTable{min-height:96px} .rowTable>div{padding:10px} .time-box{margin:9px;font-size:21px} .visitor strong{font-size:18px} .visitor .names{font-size:12px} .visitor .label{font-size:10px} .host{padding:8px 10px!important} .host .avatar{display:none} .host .editable strong{font-size:15px} .host .editable span{font-size:12px} .hostColumn .avatar{display:none} .hostColumn .editable strong{font-size:13px} .hostColumn .editable span{font-size:11px} .room-badge{font-size:14px;padding:10px 4px} .footer{padding:28px 14px 25px} .footer .en{font-size:11px;letter-spacing:2px} .footer .th{font-size:12px}
-}
 @media print{.page{background:#fff;padding:0}.poster{box-shadow:none;width:100%;min-height:100vh}@page{size:A4 portrait;margin:0}}

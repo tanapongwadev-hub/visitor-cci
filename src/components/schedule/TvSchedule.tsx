@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import SchedulePoster from "./SchedulePoster";
 import type { PosterSettings, ScheduleData, ScheduleRow } from "./types";
 import styles from "./tv.module.css";
+import { useLiveSettings } from "./useLiveSettings";
 
 const POSTER_WIDTH = 1024;
 /** ความสูงขั้นต่ำของโปสเตอร์ (หน่วย px ที่กว้าง 1024) — เท่าโปสเตอร์ต้นฉบับ 2:3 เพื่อให้มีที่ให้แถวรายการเสมอ */
@@ -28,14 +29,30 @@ type Props = {
  * - ถ้ามีมากกว่า 1 หน้า สลับหน้าทุก tvPageIntervalSec วินาที วนลูป
  * - refresh ข้อมูลจาก server ทุก tvRefreshSec วินาที
  */
-export default function TvSchedule({ data, settings, size, preview = false }: Props) {
+export default function TvSchedule({ data, settings: settingsProp, size, preview = false }: Props) {
   const router = useRouter();
   const [windowSize, setWindowSize] = useState<Size | null>(null);
+
+  // ค่าตั้งค่าที่ใช้จริง: เริ่มจาก prop แล้วอัปเดตทันทีเมื่อ poll เจอว่า admin (เครื่องไหนก็ได้) เปลี่ยนค่า
+  // — ไม่ต้องรอ router.refresh() รอบถัดไป; เมื่อ prop เปลี่ยน (หลัง refresh) ให้ใช้ค่าจาก prop แทน
+  const [liveSettings, setLiveSettings] = useState(settingsProp);
+  const [prevSettingsProp, setPrevSettingsProp] = useState(settingsProp);
+  if (settingsProp !== prevSettingsProp) {
+    setPrevSettingsProp(settingsProp);
+    setLiveSettings(settingsProp);
+  }
+  const settings = liveSettings;
+  useLiveSettings(settings, setLiveSettings, !preview);
 
   // ขนาด viewport จริง (ใช้เมื่อไม่ได้กำหนด size)
   useEffect(() => {
     if (size) return;
-    const update = () => setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+    const update = () => {
+      // แท็บที่ยังไม่ถูกวาด (ซ่อนอยู่) อาจรายงาน 0×0 — ข้ามไป ไม่งั้นคำนวณสเกลได้ NaN
+      if (window.innerWidth > 0 && window.innerHeight > 0) {
+        setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+      }
+    };
     const id = requestAnimationFrame(update);
     window.addEventListener("resize", update);
     return () => {

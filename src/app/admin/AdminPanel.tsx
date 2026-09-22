@@ -25,6 +25,7 @@ import {
 } from "@/lib/schedule/actions";
 import ScaledPreview from "./ScaledPreview";
 import TvSchedule from "@/components/schedule/TvSchedule";
+import { useLiveSettings } from "@/components/schedule/useLiveSettings";
 import ThemeTab from "./ThemeTab";
 import TimePicker24 from "./TimePicker24";
 import Combobox from "./Combobox";
@@ -107,6 +108,17 @@ export default function AdminPanel({ initialSchedule, initialSettings, initialDa
   }, [duplicates]);
   const settingsDirty = JSON.stringify(settings) !== savedSettings;
   const themeDirty = JSON.stringify(settings.theme) !== JSON.stringify(JSON.parse(savedSettings).theme);
+
+  // ตามค่าที่ admin เครื่องอื่นบันทึก (เช่น เลื่อนสเกลผ่าน ngrok) ให้ preview ที่นี่ปรับตาม
+  // — เฉพาะตอนไม่มีการแก้ไขค้าง เพื่อไม่ทับสิ่งที่ผู้ใช้กำลังแก้อยู่
+  useLiveSettings(
+    settings,
+    (next) => {
+      setSettings(next);
+      setSavedSettings(JSON.stringify(next));
+    },
+    !settingsDirty,
+  );
 
   const previewData: ScheduleData = useMemo(
     () => ({
@@ -284,14 +296,19 @@ export default function AdminPanel({ initialSchedule, initialSettings, initialDa
   }
   // ขนาด/ความหนาตัวอักษรแยกส่วน (visitor/host/room): อัปเดต preview ทันที แล้ว debounce บันทึกลงฐานข้อมูล
   // เช่นเดียวกับ fontScale เพื่อให้จอ TV เครื่องอื่นเห็นผลโดยไม่ต้องกด "บันทึก"
+  // ใช้ timer เดียวร่วมกันทุกฟิลด์ จึงต้องสะสม patch ไว้ — ไม่งั้นเปลี่ยนฟิลด์ที่สองภายใน 400ms จะทำให้ฟิลด์แรกไม่ถูกบันทึก
   const textScaleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const textScalePending = useRef<Parameters<typeof setTextScale>[0]>({});
   useEffect(() => () => {
     if (textScaleTimer.current) clearTimeout(textScaleTimer.current);
   }, []);
   function changeTextScale(patch: Parameters<typeof setTextScale>[0]) {
     setSettings((s) => ({ ...s, ...patch }));
+    textScalePending.current = { ...textScalePending.current, ...patch };
     if (textScaleTimer.current) clearTimeout(textScaleTimer.current);
     textScaleTimer.current = setTimeout(() => {
+      const patch = textScalePending.current;
+      textScalePending.current = {};
       run(async () => {
         const saved = await setTextScale(patch);
         const savedPatch = Object.fromEntries(
