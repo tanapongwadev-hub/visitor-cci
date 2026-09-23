@@ -163,9 +163,7 @@ export default function SchedulePoster({
                   <FitText fitKey={fitKey}>{row.company}</FitText>
                 </strong>
                 {row.visitorNames.length > 0 ? (
-                  <div
-                    className={`${styles.names} ${row.visitorNames.length > 5 ? styles.namesCols : ""}`}
-                  >
+                  <div className={styles.names}>
                     {row.visitorNames.map((name, j) => (
                       <FitText key={j} fitKey={fitKey}>{name}</FitText>
                     ))}
