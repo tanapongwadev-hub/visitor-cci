@@ -118,7 +118,7 @@ export async function saveSchedule(
         company: clean(r.company),
         visitorNames: normalizeNames(r.visitorNames),
         label: clean(r.label, 50) || "VISITOR",
-        hostName: clean(r.hostName),
+        hostName: clean(normalizeNames(r.hostName)),
         hostDept: clean(r.hostDept),
         room: clean(r.room, 50),
       });
@@ -179,6 +179,7 @@ export async function savePosterSettings(input: PosterSettings): Promise<PosterS
     })) as PosterSettings["footerItems"],
     editableHost: Boolean(input.editableHost),
     hostLayout: input.hostLayout === "table" ? "table" : "header",
+    roomLayout: input.roomLayout === "header" ? "header" : "column",
     fontScale: num(input.fontScale, DEFAULT_SETTINGS.fontScale, 0.8, 2),
     visitorScale: num(input.visitorScale, DEFAULT_SETTINGS.visitorScale, 0.8, 2),
     visitorBold: Boolean(input.visitorBold),
@@ -205,6 +206,12 @@ export async function savePosterSettings(input: PosterSettings): Promise<PosterS
 export async function setHostLayout(hostLayout: PosterSettings["hostLayout"]): Promise<PosterSettings> {
   const current = await getPosterSettings();
   return savePosterSettings({ ...current, hostLayout });
+}
+
+/** สลับรูปแบบแสดงห้องประชุม (คอลัมน์ / หัวรายการ) แล้วบันทึกทันที โดยไม่แตะฟิลด์อื่นที่ยังแก้ไม่บันทึก */
+export async function setRoomLayout(roomLayout: PosterSettings["roomLayout"]): Promise<PosterSettings> {
+  const current = await getPosterSettings();
+  return savePosterSettings({ ...current, roomLayout });
 }
 
 /** ปรับขนาดตัวอักษรแล้วบันทึกทันที (debounce จากฝั่ง client) โดยไม่แตะฟิลด์อื่นที่ยังแก้ไม่บันทึก */

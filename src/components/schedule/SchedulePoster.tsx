@@ -69,7 +69,7 @@ export default function SchedulePoster({
   } as CSSProperties;
   // ให้ FitText วัดขนาดใหม่ทุกครั้งที่ตัวคูณขนาด/น้ำหนักตัวอักษรเปลี่ยน (ไม่งั้น inline font-size ที่ย่อไว้จะค้าง)
   const fitKey = [
-    s.fontScale, s.visitorScale, s.visitorBold, s.hostScale, s.hostBold, s.roomScale, s.roomBold, s.hostLayout,
+    s.fontScale, s.visitorScale, s.visitorBold, s.hostScale, s.hostBold, s.roomScale, s.roomBold, s.hostLayout, s.roomLayout,
   ].join("|");
   const timeColors = t.timeColors.length ? t.timeColors : DEFAULT_SETTINGS.theme.timeColors;
   const pageClass = [styles.page, kanit.variable, montserrat.variable, compact ? styles.pageCompact : ""]
@@ -80,21 +80,32 @@ export default function SchedulePoster({
     .join(" ");
   const posterStyle = fillHeight ? ({ "--poster-h": `${fillHeight}px` } as CSSProperties) : undefined;
   const isTableLayout = s.hostLayout === "table";
-  const host = (row: ScheduleData["rows"][number]) => (
-    <>
-      <span className={styles.avatar} title="ผู้รับแขก">
-        <HostIcon className={styles["svg-icon"]} />
-      </span>
-      <div className={styles.editable} contentEditable={s.editableHost} suppressContentEditableWarning>
-        <strong>
-          <FitText fitKey={fitKey}>{row.hostName || s.defaultHostName}</FitText>
-        </strong>
-        <span>
-          <FitText fitKey={fitKey}>{row.hostDept || s.defaultHostDept}</FitText>
+  // ห้องประชุมแสดงเป็นแถบหัวของแต่ละรายการ (แทนคอลัมน์ ROOM) — คอลัมน์อื่นได้ความกว้างเพิ่ม
+  const roomInHeader = s.roomLayout === "header";
+  const sectionClass = [isTableLayout ? styles.scheduleTable : styles.schedule, roomInHeader ? styles.noRoomCol : ""]
+    .filter(Boolean)
+    .join(" ");
+  // ผู้รับแขก: จัดแบบเดียวกับช่องผู้มาติดต่อ — แผนก (เหมือนชื่อบริษัท) แล้วตามด้วยรายชื่อผู้รับแขก (เหมือนรายชื่อแขก บรรทัดละคน)
+  const host = (row: ScheduleData["rows"][number]) => {
+    const names = row.hostName.split("\n").map((n) => n.trim()).filter(Boolean);
+    return (
+      <>
+        <span className={styles.avatar} title="ผู้รับแขก">
+          <HostIcon className={styles["svg-icon"]} />
         </span>
-      </div>
-    </>
-  );
+        <div className={styles.editable} contentEditable={s.editableHost} suppressContentEditableWarning>
+          <strong>
+            <FitText fitKey={fitKey}>{row.hostDept || s.defaultHostDept}</FitText>
+          </strong>
+          <span>
+            {(names.length ? names : [s.defaultHostName]).map((name, j) => (
+              <FitText key={j} fitKey={fitKey}>{name}</FitText>
+            ))}
+          </span>
+        </div>
+      </>
+    );
+  };
 
   return (
     <div className={pageClass} style={themeStyle}>
@@ -121,7 +132,9 @@ export default function SchedulePoster({
             </div>
           ) : null}
           {s.welcomeText ? <div className={styles.welcome}>{s.welcomeText}</div> : null}
-          <h1>{s.companyNameEn}</h1>
+          <h1>
+            <FitText fitKey={fitKey} maxLines={1} minScale={0.4}>{s.companyNameEn}</FitText>
+          </h1>
           {s.companyNameTh ? <div className={styles["thai-company"]}>{s.companyNameTh}</div> : null}
           <div className={styles["date-line"]}>
             <span className={styles.calendar}>
@@ -131,7 +144,7 @@ export default function SchedulePoster({
           </div>
         </header>
 
-        <section className={isTableLayout ? styles.scheduleTable : styles.schedule}>
+        <section className={sectionClass}>
           <div className={styles["grid-header"]}>
             <HeaderCell icon={<ClockIcon className={styles["svg-icon"]} />} en="TIME" th="เวลา" />
             <HeaderCell
@@ -142,7 +155,9 @@ export default function SchedulePoster({
             {isTableLayout ? (
               <HeaderCell icon={<HandshakeIcon className={styles["svg-icon"]} />} en="HOST" th="ผู้รับแขก" />
             ) : null}
-            <HeaderCell icon={<DoorIcon className={styles["svg-icon"]} />} en="ROOM" th="ห้องประชุม" />
+            {!roomInHeader ? (
+              <HeaderCell icon={<DoorIcon className={styles["svg-icon"]} />} en="ROOM" th="ห้องประชุม" />
+            ) : null}
           </div>
 
           {data.rows.map((row, i) => (
@@ -152,7 +167,19 @@ export default function SchedulePoster({
               data-row
               style={{ "--tc": timeColors[i % timeColors.length] } as CSSProperties}
             >
-              {!isTableLayout ? <div className={styles.host}>{host(row)}</div> : null}
+              {!isTableLayout || (roomInHeader && row.room) ? (
+                <div className={styles.host}>
+                  {!isTableLayout ? host(row) : null}
+                  {roomInHeader && row.room ? (
+                    <div className={styles.roomTag}>
+                      <span className={styles["room-icon"]}>
+                        <DoorIcon className={styles["svg-icon"]} />
+                      </span>
+                      <FitText className={styles["room-text"]} fitKey={fitKey} maxLines={1}>{row.room}</FitText>
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
 
               <div className={styles["time-box"]}>
                 <FitText fitKey={fitKey} maxLines={1}>{row.time}</FitText>
@@ -174,14 +201,16 @@ export default function SchedulePoster({
 
               {isTableLayout ? <div className={styles.hostColumn}>{host(row)}</div> : null}
 
-              <div className={styles.room}>
-                <div className={styles["room-badge"]}>
-                  <span className={styles["room-icon"]}>
-                    <DoorIcon className={styles["svg-icon"]} />
-                  </span>
-                  <FitText className={styles["room-text"]} fitKey={fitKey}>{row.room}</FitText>
+              {!roomInHeader ? (
+                <div className={styles.room}>
+                  <div className={styles["room-badge"]}>
+                    <span className={styles["room-icon"]}>
+                      <DoorIcon className={styles["svg-icon"]} />
+                    </span>
+                    <FitText className={styles["room-text"]} fitKey={fitKey}>{row.room}</FitText>
+                  </div>
                 </div>
-              </div>
+              ) : null}
             </div>
           ))}
         </section>

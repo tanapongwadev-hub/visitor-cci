@@ -20,6 +20,7 @@ import {
   saveSchedule,
   setFontScale,
   setHostLayout,
+  setRoomLayout,
   setTextScale,
   type RowInput,
 } from "@/lib/schedule/actions";
@@ -278,6 +279,15 @@ export default function AdminPanel({ initialSchedule, initialSettings, initialDa
       notify("ok", v === "table" ? "ตั้งค่าแสดงผู้รับแขกแบบตารางแล้ว" : "ตั้งค่าแสดงผู้รับแขกแบบหัวข้อรายการแล้ว");
     });
   }
+  // รูปแบบแสดงห้องประชุม: บันทึกทันทีที่เลือก เหมือนรูปแบบผู้รับแขก
+  function changeRoomLayout(v: PosterSettings["roomLayout"]) {
+    setSettings((s) => ({ ...s, roomLayout: v }));
+    run(async () => {
+      const saved = await setRoomLayout(v);
+      setSavedSettings((prev) => JSON.stringify({ ...JSON.parse(prev), roomLayout: saved.roomLayout }));
+      notify("ok", v === "header" ? "ตั้งค่าแสดงห้องประชุมที่หัวรายการแล้ว" : "ตั้งค่าแสดงห้องประชุมเป็นคอลัมน์แล้ว");
+    });
+  }
   // ขนาดตัวอักษร: อัปเดต preview ทันทีทุกครั้งที่เลื่อน แล้ว debounce บันทึกลงฐานข้อมูลหลังหยุดเลื่อน
   // (ไม่ต้องกด "บันทึก") เพื่อให้ /schedule ตรงกับที่เลื่อนใน preview เสมอ — ไม่แตะฟิลด์อื่นที่ยังแก้ไม่บันทึก
   const fontScaleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -475,6 +485,7 @@ export default function AdminPanel({ initialSchedule, initialSettings, initialDa
               onUpdate={updateSettings}
               onUpdateFooter={updateFooter}
               onChangeHostLayout={changeHostLayout}
+              onChangeRoomLayout={changeRoomLayout}
               onSave={saveSettings}
               onReset={resetSettings}
               onDiscard={() => setSettings(JSON.parse(savedSettings))}
@@ -511,6 +522,25 @@ export default function AdminPanel({ initialSchedule, initialSettings, initialDa
                     disabled={pending}
                     className={`rounded px-2 py-1 ${
                       settings.hostLayout === v ? "bg-teal-700 text-white" : "hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+              <div className="flex rounded-md border border-zinc-300 p-0.5 text-xs dark:border-zinc-600">
+                {(
+                  [
+                    ["column", "ห้อง: คอลัมน์"],
+                    ["header", "ห้อง: หัวรายการ"],
+                  ] as const
+                ).map(([v, label]) => (
+                  <button
+                    key={v}
+                    onClick={() => changeRoomLayout(v)}
+                    disabled={pending}
+                    className={`rounded px-2 py-1 ${
+                      settings.roomLayout === v ? "bg-teal-700 text-white" : "hover:bg-zinc-100 dark:hover:bg-zinc-800"
                     }`}
                   >
                     {label}
@@ -698,6 +728,13 @@ function RowEditor({
   onRemove: () => void;
 }) {
   const dup = duplicateWith && duplicateWith.length > 0;
+  // ช่องค้นหาผู้รับแขกจากข้อมูลหลัก — เลือกแล้วต่อท้ายรายชื่อ (ผู้รับแขกมีได้หลายคน) แล้วล้างช่อง
+  const [hostPick, setHostPick] = useState("");
+  const addHost = (name: string, dept?: string) => {
+    const names = row.hostName.split("\n").map((n) => n.trim()).filter(Boolean);
+    if (!names.includes(name)) names.push(name);
+    onUpdate({ hostName: names.join("\n"), ...(!row.hostDept.trim() && dept ? { hostDept: dept } : {}) });
+  };
   const opts = {
     room: master.room.map((m) => ({ value: m.name })),
     company: master.company.map((m) => ({ value: m.name })),
@@ -790,25 +827,44 @@ function RowEditor({
           </Field>
         </Group>
 
-        <Group title="ผู้รับแขก" hint="เลือกจากรายการแล้วฝ่ายจะถูกเติมให้">
-          <Field label="ชื่อผู้รับแขก">
-            <Combobox
-              value={row.hostName}
-              onChange={(hostName) => onUpdate({ hostName })}
-              // เลือกผู้รับแขกจากข้อมูลหลัก -> เติมฝ่าย/แผนกให้ด้วย
-              onSelect={(o) => (o.detail ? onUpdate({ hostName: o.value, hostDept: o.detail }) : undefined)}
-              options={opts.host}
-              className={inputCls}
-              onCreate={(v) => onQuickAdd("host", v, row.hostDept)}
-            />
-          </Field>
-          <Field label="ฝ่าย / แผนก">
+        <Group title="ผู้รับแขก" hint="เลือกชื่อจากรายการเพื่อเพิ่มทีละคน — ถ้ายังไม่ระบุแผนก จะเติมแผนกให้">
+          <Field label="แผนก">
             <Combobox
               value={row.hostDept}
               onChange={(hostDept) => onUpdate({ hostDept })}
               options={opts.department}
+              placeholder="SALE"
               className={inputCls}
               onCreate={(v) => onQuickAdd("department", v)}
+            />
+          </Field>
+          <Field label="ชื่อผู้รับแขก (บรรทัดละคน)">
+            <textarea
+              value={row.hostName}
+              onChange={(e) => onUpdate({ hostName: e.target.value })}
+              rows={3}
+              placeholder={"K. PRAWIT\nK. KITTISAK"}
+              className={inputCls}
+            />
+          </Field>
+          <Field label="เพิ่มชื่อจากรายการ">
+            <Combobox
+              value={hostPick}
+              onChange={setHostPick}
+              // เลือกผู้รับแขกจากข้อมูลหลัก -> ต่อท้ายรายชื่อ และเติมแผนกให้ถ้ายังว่าง
+              onSelect={(o) => {
+                addHost(o.value, o.detail);
+                setHostPick("");
+              }}
+              options={opts.host}
+              placeholder="ค้นหาชื่อ…"
+              className={inputCls}
+              onCreate={async (v) => {
+                await onQuickAdd("host", v, row.hostDept);
+                addHost(v);
+                // Combobox ตั้งค่าช่องเป็นชื่อที่เพิ่งสร้างหลัง onCreate — ล้างทีหลัง
+                setTimeout(() => setHostPick(""));
+              }}
             />
           </Field>
         </Group>
@@ -837,6 +893,7 @@ type SettingsTabProps = {
   onUpdate: (patch: Partial<PosterSettings>) => void;
   onUpdateFooter: (i: number, patch: Partial<PosterSettings["footerItems"][number]>) => void;
   onChangeHostLayout: (v: PosterSettings["hostLayout"]) => void;
+  onChangeRoomLayout: (v: PosterSettings["roomLayout"]) => void;
   onSave: () => void;
   onReset: () => void;
   onDiscard: () => void;
@@ -849,6 +906,7 @@ function SettingsTab({
   onUpdate,
   onUpdateFooter,
   onChangeHostLayout,
+  onChangeRoomLayout,
   onSave,
   onReset,
   onDiscard,
@@ -882,6 +940,34 @@ function SettingsTab({
         </div>
       </Card>
 
+      <Card title="ห้องประชุม">
+        <Field label="ตำแหน่งแสดงห้องประชุม">
+          <div className="flex rounded-md border border-zinc-300 p-0.5 text-sm dark:border-zinc-600">
+            {(
+              [
+                ["column", "แบบคอลัมน์ในตาราง"],
+                ["header", "แบบหัวของแต่ละรายการ"],
+              ] as const
+            ).map(([v, label]) => (
+              <button
+                key={v}
+                type="button"
+                onClick={() => onChangeRoomLayout(v)}
+                disabled={pending}
+                className={`flex-1 rounded px-2 py-1 ${
+                  s.roomLayout === v ? "bg-teal-700 text-white" : "hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <p className="mt-1 text-[11px] leading-snug text-zinc-400">
+            แบบหัวรายการ: ตัดคอลัมน์ ROOM ออก ช่องผู้มาติดต่อ/ผู้รับแขกจะกว้างขึ้น — มีผลทันทีที่เลือก ไม่ต้องกด &quot;บันทึก&quot;
+          </p>
+        </Field>
+      </Card>
+
       <Card title="ผู้รับแขก">
         <div className="flex flex-col gap-2">
           <Field label="รูปแบบการแสดงผู้รับแขก">
@@ -909,11 +995,11 @@ function SettingsTab({
               มีผลกับหน้าแสดงผลจริงทันทีที่เลือก ไม่ต้องกด &quot;บันทึก&quot;
             </p>
           </Field>
+          <Field label="ข้อความเมื่อยังไม่ระบุแผนก">
+            <input value={s.defaultHostDept} onChange={(e) => onUpdate({ defaultHostDept: e.target.value })} className={inputCls} />
+          </Field>
           <Field label="ข้อความเมื่อยังไม่ระบุชื่อ">
             <input value={s.defaultHostName} onChange={(e) => onUpdate({ defaultHostName: e.target.value })} className={inputCls} />
-          </Field>
-          <Field label="ข้อความเมื่อยังไม่ระบุฝ่าย">
-            <input value={s.defaultHostDept} onChange={(e) => onUpdate({ defaultHostDept: e.target.value })} className={inputCls} />
           </Field>
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" checked={s.editableHost} onChange={(e) => onUpdate({ editableHost: e.target.checked })} />

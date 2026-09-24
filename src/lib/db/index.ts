@@ -15,6 +15,13 @@ function isStale(ds: DataSource): boolean {
 }
 
 export async function getDataSource(): Promise<DataSource> {
+  const ds = await getOrInit();
+  if (!isStale(ds)) return ds;
+  // connection ที่กำลังเปิดอยู่ตอน HMR ถูกสร้างด้วย class ชุดเก่า — ตรวจซ้ำหลังเปิดเสร็จ แล้วเปิดใหม่อีกครั้ง
+  return getOrInit();
+}
+
+async function getOrInit(): Promise<DataSource> {
   const cached = globalForDb.__dataSource;
   if (cached?.isInitialized) {
     if (!isStale(cached)) return cached;

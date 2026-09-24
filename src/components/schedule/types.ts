@@ -6,7 +6,9 @@ export type ScheduleRow = {
   /** รายชื่อผู้มาติดต่อ (แต่ละคนคนละบรรทัด) */
   visitorNames: string[];
   label: string;
+  /** รายชื่อผู้รับแขก คั่นด้วยขึ้นบรรทัดใหม่ (มีได้หลายคน) */
   hostName: string;
+  /** แผนก — แสดงเป็นหัวข้อ (ตัวใหญ่) ของช่องผู้รับแขก */
   hostDept: string;
   room: string;
 };
@@ -129,6 +131,8 @@ export type PosterSettings = {
   editableHost: boolean;
   /** รูปแบบแสดงผู้รับแขก: "table" = เป็นคอลัมน์ในตาราง (แบบเดิม), "header" = เป็นหัวข้อของแต่ละรายการ */
   hostLayout: "table" | "header";
+  /** รูปแบบแสดงห้องประชุม: "column" = เป็นคอลัมน์ ROOM ในตาราง, "header" = อยู่ในแถบหัวของแต่ละรายการ */
+  roomLayout: "column" | "header";
   /** อัตราขยายขนาดตัวอักษรทั้งโปสเตอร์ (1 = ขนาดปกติ, 0.8–2) */
   fontScale: number;
   /** ขนาด/น้ำหนักตัวอักษรแยกต่อส่วน (คูณเพิ่มจาก fontScale อีกที) */
@@ -163,6 +167,7 @@ export const DEFAULT_SETTINGS: PosterSettings = {
   ],
   editableHost: false,
   hostLayout: "header",
+  roomLayout: "column",
   fontScale: 1,
   visitorScale: 1,
   visitorBold: true,
@@ -171,7 +176,7 @@ export const DEFAULT_SETTINGS: PosterSettings = {
   roomScale: 1,
   roomBold: true,
   defaultHostName: "ระบุชื่อผู้รับแขก",
-  defaultHostDept: "ระบุฝ่าย / แผนก",
+  defaultHostDept: "ระบุแผนก",
   theme: DEFAULT_THEME,
   tvPageIntervalSec: 30,
   tvRefreshSec: 60,
