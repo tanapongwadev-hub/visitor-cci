@@ -43,15 +43,15 @@
  * ทุกแถวจึงเรียงตรงกันและค่าแสดงเต็มขนาดโดยไม่ตกบรรทัด — คอลัมน์ผู้มาติดต่อ แบ่งพื้นที่ที่เหลือ
  * ผู้รับแขกแสดงเป็นแถบหัวของแต่ละ record แทนการเป็นคอลัมน์
  */
-/* เพดานความกว้างคอลัมน์ห้อง: 360px ที่สเกล 100% แล้วลดลงเมื่อสเกลรวมสูงขึ้น (260px ที่ 200%) — ไม่งั้นคอลัมน์เวลา+ห้องกินที่จนผู้มาติดต่อ/ผู้รับแขกเหลือไม่พอ */
+/* คอลัมน์ห้องกว้างคงที่ (ไม่ขยายตามชื่อห้อง) — พอดีหัวข้อ ROOM + ไอคอนให้แสดงเต็ม; โตตามหัวตาราง (--hdr-scale สูงสุด 1.15) เท่านั้น ชื่อห้องที่ยาวเกิน FitText จะย่อลง */
 /* ช่องว่างแนวนอน (padding/margin ของเซลล์) โตตามสเกลได้ไม่เกิน 1.25 เท่า — ที่สเกลสูง โปสเตอร์ยังกว้าง 1024 เท่าเดิม จึงเก็บพื้นที่ไว้ให้ตัวอักษร */
 .schedule,.scheduleTable{--gap-scale:min(var(--font-scale,1),1.25)}
-.schedule,.scheduleTable{--room-col-max:calc(460px - 100px * var(--font-scale,1))}
-.schedule{position:relative;z-index:2;margin:0 36px 28px;border-radius:22px;background:transparent;box-shadow:none;display:grid;grid-template-columns:fit-content(260px) minmax(0,1fr) fit-content(var(--room-col-max));row-gap:24px}
+.schedule,.scheduleTable{--room-col:calc(200px * min(var(--font-scale,1),1.15))}
+.schedule{position:relative;z-index:2;margin:0 36px 28px;border-radius:22px;background:transparent;box-shadow:none;display:grid;grid-template-columns:fit-content(260px) minmax(0,1fr) var(--room-col);row-gap:24px}
 /* โหมดตาราง (คลาสสิก): ผู้รับแขกเป็นคอลัมน์ในตารางเดียวกับเวลา/ผู้มาติดต่อ/ห้อง เหมือนดีไซน์เดิม */
 /* คอลัมน์ผู้มาติดต่อกว้างตามข้อความที่ยาวที่สุด (fit-content) เพื่อให้ไม่ตกบรรทัด — ผู้รับแขกได้พื้นที่ที่เหลือ แต่อย่างน้อย 20%
    ถ้าพื้นที่ไม่พอจริงๆ (ตัวอักษรใหญ่มาก) FitText จะย่อขนาดตัวอักษรลงแทนการตัดบรรทัด */
-.scheduleTable{position:relative;z-index:2;margin:0 36px 28px;border-radius:22px;overflow:hidden;background:#fff;box-shadow:0 14px 34px var(--shadow);display:grid;grid-template-columns:fit-content(260px) fit-content(100%) minmax(20%,1fr) fit-content(var(--room-col-max))}
+.scheduleTable{position:relative;z-index:2;margin:0 36px 28px;border-radius:22px;overflow:hidden;background:#fff;box-shadow:0 14px 34px var(--shadow);display:grid;grid-template-columns:fit-content(260px) fit-content(100%) minmax(20%,1fr) var(--room-col)}
 /* ห้องประชุมอยู่ในแถบหัวของแต่ละรายการ (roomLayout = "header"): ตัดคอลัมน์ ROOM ออก ให้คอลัมน์อื่นได้ความกว้างเพิ่ม */
 .schedule.noRoomCol{grid-template-columns:fit-content(260px) minmax(0,1fr)}
 .scheduleTable.noRoomCol{grid-template-columns:fit-content(260px) fit-content(100%) minmax(20%,1fr)}
