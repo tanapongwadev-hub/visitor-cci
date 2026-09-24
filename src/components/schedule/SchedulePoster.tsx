@@ -187,12 +187,12 @@ export default function SchedulePoster({
 
               <div className={styles.visitor}>
                 <strong>
-                  <FitText fitKey={fitKey}>{row.company}</FitText>
+                  <FitText fitKey={fitKey} maxLines={1}>{row.company}</FitText>
                 </strong>
                 {row.visitorNames.length > 0 ? (
                   <div className={styles.names}>
                     {row.visitorNames.map((name, j) => (
-                      <FitText key={j} fitKey={fitKey}>{name}</FitText>
+                      <FitText key={j} fitKey={fitKey} maxLines={1}>{name}</FitText>
                     ))}
                   </div>
                 ) : null}
