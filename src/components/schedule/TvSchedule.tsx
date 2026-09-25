@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import SchedulePoster from "./SchedulePoster";
+import { todayBangkok } from "./types";
 import type { PosterSettings, ScheduleData, ScheduleRow } from "./types";
 import styles from "./tv.module.css";
 import { useLiveSettings } from "./useLiveSettings";
@@ -31,6 +32,7 @@ type Props = {
  */
 export default function TvSchedule({ data, settings: settingsProp, size, preview = false }: Props) {
   const router = useRouter();
+  const pathname = usePathname();
   const [windowSize, setWindowSize] = useState<Size | null>(null);
 
   // ค่าตั้งค่าที่ใช้จริง: เริ่มจาก prop แล้วอัปเดตทันทีเมื่อ poll เจอว่า admin (เครื่องไหนก็ได้) เปลี่ยนค่า
@@ -149,12 +151,21 @@ export default function TvSchedule({ data, settings: settingsProp, size, preview
   }, [pageCount, settings.tvPageIntervalSec]);
 
   // ---------- refresh ข้อมูล ----------
+  // ถ้า URL ถูกเปิดค้างไว้แบบ pin วันที่ (?date=...) ตั้งแต่วันก่อน — พอข้ามวันแล้วต้องเลื่อน
+  // ไปวันปัจจุบันเองอัตโนมัติ ไม่งั้น router.refresh() จะ fetch ด้วย searchParams เดิม (วันเดิม) ซ้ำไปเรื่อยๆ
   useEffect(() => {
     if (preview) return;
     const ms = Math.max(10, settings.tvRefreshSec) * 1000;
-    const id = setInterval(() => router.refresh(), ms);
+    const id = setInterval(() => {
+      const today = todayBangkok();
+      if (today !== data.date) {
+        router.replace(`${pathname}?date=${today}`);
+      } else {
+        router.refresh();
+      }
+    }, ms);
     return () => clearInterval(id);
-  }, [preview, settings.tvRefreshSec, router]);
+  }, [preview, settings.tvRefreshSec, router, pathname, data.date]);
 
   const pageData: ScheduleData = useMemo(
     () => ({ ...data, rows: pages[safePage] ?? [] }),

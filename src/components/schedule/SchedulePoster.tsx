@@ -82,7 +82,12 @@ export default function SchedulePoster({
   const isTableLayout = s.hostLayout === "table";
   // ห้องประชุมแสดงเป็นแถบหัวของแต่ละรายการ (แทนคอลัมน์ ROOM) — คอลัมน์อื่นได้ความกว้างเพิ่ม
   const roomInHeader = s.roomLayout === "header";
-  const sectionClass = [isTableLayout ? styles.scheduleTable : styles.schedule, roomInHeader ? styles.noRoomCol : ""]
+  const isEmpty = data.rows.length === 0;
+  const sectionClass = [
+    isTableLayout ? styles.scheduleTable : styles.schedule,
+    roomInHeader ? styles.noRoomCol : "",
+    isEmpty ? styles.scheduleEmpty : "",
+  ]
     .filter(Boolean)
     .join(" ");
   // ผู้รับแขก: จัดแบบเดียวกับช่องผู้มาติดต่อ — แผนก (เหมือนชื่อบริษัท) แล้วตามด้วยรายชื่อผู้รับแขก (เหมือนรายชื่อแขก บรรทัดละคน)
@@ -145,20 +150,22 @@ export default function SchedulePoster({
         </header>
 
         <section className={sectionClass}>
-          <div className={styles["grid-header"]}>
-            <HeaderCell icon={<ClockIcon className={styles["svg-icon"]} />} en="TIME" th="เวลา" />
-            <HeaderCell
-              icon={<VisitorsIcon className={styles["svg-icon"]} />}
-              en="VISITOR"
-              th="ผู้มาติดต่อ / กิจกรรม"
-            />
-            {isTableLayout ? (
-              <HeaderCell icon={<HandshakeIcon className={styles["svg-icon"]} />} en="HOST" th="ผู้รับแขก" />
-            ) : null}
-            {!roomInHeader ? (
-              <HeaderCell icon={<DoorIcon className={styles["svg-icon"]} />} en="ROOM" th="ห้องประชุม" />
-            ) : null}
-          </div>
+          {!isEmpty ? (
+            <div className={styles["grid-header"]}>
+              <HeaderCell icon={<ClockIcon className={styles["svg-icon"]} />} en="TIME" th="เวลา" />
+              <HeaderCell
+                icon={<VisitorsIcon className={styles["svg-icon"]} />}
+                en="VISITOR"
+                th="ผู้มาติดต่อ / กิจกรรม"
+              />
+              {isTableLayout ? (
+                <HeaderCell icon={<HandshakeIcon className={styles["svg-icon"]} />} en="HOST" th="ผู้รับแขก" />
+              ) : null}
+              {!roomInHeader ? (
+                <HeaderCell icon={<DoorIcon className={styles["svg-icon"]} />} en="ROOM" th="ห้องประชุม" />
+              ) : null}
+            </div>
+          ) : null}
 
           {data.rows.map((row, i) => (
             <div
@@ -213,6 +220,16 @@ export default function SchedulePoster({
               ) : null}
             </div>
           ))}
+
+          {isEmpty ? (
+            <div className={styles.empty}>
+              <span className={styles["empty-icon"]}>
+                <VisitorsIcon className={styles["svg-icon"]} />
+              </span>
+              <div className={styles["empty-en"]}>NO APPOINTMENTS TODAY</div>
+              <div className={styles["empty-th"]}>วันนี้ไม่มีนัดหมาย</div>
+            </div>
+          ) : null}
         </section>
 
         <div className={styles.thanks}>

@@ -72,6 +72,13 @@
 .grid-header>div{container-type:inline-size}
 @container (max-width:150px){.grid-header .icon-wrap{display:none}}
 .grid-header>div:last-child{border-right:0}
+/* คอลัมน์เวลา (fit-content) ต้องมีความกว้างขั้นต่ำเท่ากับ .time-box (138px) เสมอ แม้วันนั้นไม่มีแถวข้อมูลเลย —
+   ไม่งั้นเมื่อไม่มีแถว มีแค่หัวตารางกำหนดความกว้างของคอลัมน์ ซึ่งอาจแคบกว่า 150px แล้วชนกับ container query
+   ที่ซ่อนไอคอนเมื่อคอลัมน์แคบ (ด้านล่าง) ทำให้คอลัมน์ยุบแคบลงไปอีกและไอคอนเบียดชิดขอบซ้ายผิดปกติ */
+.grid-header>div:first-child{min-width:138px}
+/* คอลัมน์ผู้มาติดต่อในโหมดตาราง (.scheduleTable) ก็เป็น fit-content เช่นกัน ยุบแคบได้แบบเดียวกับคอลัมน์เวลา
+   เมื่อไม่มีแถวข้อมูล — กันไว้ไม่ให้หัวข้อ VISITOR หายไป (โหมดหัวข้อ/.schedule คอลัมน์นี้เป็น 1fr อยู่แล้ว ไม่ยุบ) */
+.grid-header>div:nth-child(2){min-width:160px}
 .grid-header .icon-wrap{display:flex;flex:0 0 auto;align-items:center;justify-content:center;width:calc(44px * var(--hdr-scale,1));height:calc(44px * var(--hdr-scale,1));border-radius:12px;background:rgba(255,255,255,.12)}
 .header-small{display:block;overflow:hidden;text-overflow:ellipsis;font-family:var(--font-kanit),sans-serif;font-size:calc(15px * var(--hdr-scale,1));font-weight:400;opacity:.92;margin-top:-2px;letter-spacing:0}
 .icon{width:calc(42px * var(--hdr-scale,1));height:calc(42px * var(--hdr-scale,1));display:inline-flex;align-items:center;justify-content:center;color:#fff;flex:0 0 auto}
@@ -127,6 +134,14 @@
 .roomTag .room-text{min-width:0;flex:0 1 auto}
 .room-badge{width:100%;min-width:134px;padding:calc(11px * var(--font-scale,1)) calc(12px * var(--gap-scale,1));border-radius:13px;background:linear-gradient(90deg,var(--tint-8),var(--tint-12));text-align:center;font-family:var(--font-montserrat),sans-serif;font-size:calc(20px * var(--font-scale,1) * var(--room-scale,1));font-weight:var(--room-weight,700);color:var(--ink);display:flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;min-width:0}
 .room-badge .room-text{min-width:0;flex:0 1 auto}.room-icon{width:calc(23px * var(--font-scale,1));height:calc(23px * var(--font-scale,1));display:inline-flex;color:var(--primary-dark)}.room-icon .svg-icon{width:100%;height:100%;stroke-width:1.8}
+/* กรณีไม่มีนัดหมายเลยในวันนั้น: แทนที่จะปล่อยตารางว่างมีแค่หัวตาราง ให้แสดงข้อความแจ้งแทน
+   โหมด TV (.posterFill) ให้ตารางขยายเต็มพื้นที่ที่เหลือแล้วจัดข้อความไว้กึ่งกลางแนวตั้ง แทนที่จะค้างชิดบน */
+.posterFill .scheduleEmpty{flex:1 1 auto;align-content:center}
+.empty{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:calc(50px * var(--font-scale,1)) 20px;text-align:center}
+.empty-icon{width:74px;height:74px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:var(--tint-12);color:var(--primary)}
+.empty-icon .svg-icon{width:38px;height:38px;stroke-width:1.6}
+.empty-en{font-family:var(--font-montserrat),sans-serif;letter-spacing:3px;font-size:calc(24px * var(--font-scale,1));font-weight:700;color:var(--ink-2)}
+.empty-th{font-family:var(--font-kanit),sans-serif;font-size:calc(19px * var(--font-scale,1));color:var(--ink-3)}
 .thanks{text-align:center;padding:0 20px 20px;color:var(--ink)}
 .thanks-en{display:flex;align-items:center;justify-content:center;gap:20px;white-space:nowrap;font-family:var(--font-montserrat),sans-serif;letter-spacing:5px;font-size:calc(19px * var(--font-scale,1))}
 .thanks-en:before,.thanks-en:after{content:"";width:82px;height:2px;background:var(--primary)}
