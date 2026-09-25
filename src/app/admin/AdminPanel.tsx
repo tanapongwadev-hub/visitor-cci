@@ -822,9 +822,6 @@ function RowEditor({
               className={inputCls}
             />
           </Field>
-          <Field label="ป้ายกำกับ">
-            <input value={row.label} onChange={(e) => onUpdate({ label: e.target.value })} placeholder="VISITOR" className={inputCls} />
-          </Field>
         </Group>
 
         <Group title="ผู้รับแขก" hint="เลือกชื่อจากรายการเพื่อเพิ่มทีละคน — ถ้ายังไม่ระบุแผนก จะเติมแผนกให้">
