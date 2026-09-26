@@ -102,7 +102,6 @@
 .visitor{display:block!important;padding-top:14px!important}
 .visitor strong{font-family:var(--font-montserrat),var(--font-kanit),sans-serif;font-size:calc(25px * var(--font-scale,1) * var(--visitor-scale,1));display:block;line-height:1.18;color:var(--ink);font-weight:var(--visitor-weight,700);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .visitor .names{font-family:var(--font-montserrat),sans-serif;font-size:calc(17px * var(--font-scale,1) * var(--visitor-scale,1));line-height:1.25;color:var(--ink);font-weight:var(--visitor-weight,600);margin-top:5px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.visitor .label{font-family:var(--font-montserrat),sans-serif;font-size:calc(14px * var(--font-scale,1));letter-spacing:1px;color:var(--ink-3);margin-top:4px;white-space:nowrap}
 /* แถบหัวของแต่ละ record: แสดงผู้รับแขก เต็มความกว้างแถว เหนือ เวลา/ผู้มาติดต่อ/ห้อง ในกรอบการ์ดเดียวกัน
    สีพื้นแถบไล่จากสีขอบซ้าย (--tc) ของการ์ดนั้น เพื่อให้เห็นชัดว่าแถบนี้เป็นของ record ไหน */
 .host{grid-column:1/-1;gap:10px!important;align-items:center!important;padding:calc(10px * var(--font-scale,1)) calc(18px * var(--gap-scale,1))!important;background:color-mix(in srgb,var(--tc) 16%,white);border-right:0!important;border-bottom:1px solid var(--line)}

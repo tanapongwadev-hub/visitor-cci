@@ -203,7 +203,6 @@ export default function SchedulePoster({
                     ))}
                   </div>
                 ) : null}
-                {row.label ? <div className={styles.label}>{row.label}</div> : null}
               </div>
 
               {isTableLayout ? <div className={styles.hostColumn}>{host(row)}</div> : null}
