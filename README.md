@@ -96,7 +96,7 @@ src/app/admin/
   TimePicker24.tsx       # time picker 24 ชม.
   ScaledPreview.tsx      # ย่อโปสเตอร์ 1024px ให้พอดี container
 scripts/seed.ts          # ข้อมูลตัวอย่าง
-public/logo.png          # โลโก้
+public/cci.png           # โลโก้
 ```
 
 ฟอนต์ Kanit / Montserrat โหลดผ่าน `next/font/google`

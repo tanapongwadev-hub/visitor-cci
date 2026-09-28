@@ -120,7 +120,7 @@ export default function SchedulePoster({
         <header className={styles.header}>
           <Image
             className={styles.logo}
-            src="/logo.png"
+            src="/cci.png"
             alt={`${s.companyNameEn} logo`}
             width={225}
             height={200}
