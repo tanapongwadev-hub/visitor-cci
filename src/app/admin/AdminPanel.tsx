@@ -929,10 +929,10 @@ function SettingsTab({
               <button
                 type="button"
                 className={btnCls}
-                onClick={() => onUpdate({ logoScale: 1 })}
-                disabled={s.logoScale === 1}
+                onClick={() => onUpdate({ logoScale: 1.3 })}
+                disabled={s.logoScale === 1.3}
               >
-                100%
+                130%
               </button>
             </div>
             <p className="mt-1 text-[11px] leading-snug text-zinc-400">

@@ -158,7 +158,7 @@ export const DEFAULT_SETTINGS: PosterSettings = {
   companyNameEn: "CHIEWCHAN INDUSTRY (1989) CO., LTD.",
   companyNameTh: "บริษัท เชี่ยวชาญ อินดัสทรี่ (1989) จำกัด",
   welcomeText: "WELCOME TO",
-  logoScale: 1,
+  logoScale: 1.3,
   showMotto: true,
   mottoLines: ["PEOPLE", "PARTNERSHIP", "A BRIGHTER", "TOMORROW"],
   thanksEn: "THANK YOU FOR VISITING US",
