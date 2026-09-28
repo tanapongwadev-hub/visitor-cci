@@ -169,6 +169,7 @@ export async function savePosterSettings(input: PosterSettings): Promise<PosterS
     companyNameEn: clean(input.companyNameEn),
     companyNameTh: clean(input.companyNameTh),
     welcomeText: clean(input.welcomeText, 100),
+    logoScale: num(input.logoScale, DEFAULT_SETTINGS.logoScale, 0.5, 2),
     showMotto: Boolean(input.showMotto),
     mottoLines: (input.mottoLines ?? []).map((s) => clean(s, 60)).filter(Boolean).slice(0, 6),
     thanksEn: clean(input.thanksEn),

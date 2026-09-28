@@ -60,6 +60,7 @@ export default function SchedulePoster({
     "--ink": t.ink,
     "--page-bg": t.pageBg,
     "--font-scale": s.fontScale || 1,
+    "--logo-scale": s.logoScale || 1,
     "--visitor-scale": s.visitorScale || 1,
     "--visitor-weight": s.visitorBold ? 700 : 500,
     "--host-scale": s.hostScale || 1,
@@ -124,7 +125,7 @@ export default function SchedulePoster({
             alt={`${s.companyNameEn} logo`}
             width={225}
             height={200}
-            priority
+            preload
           />
           {s.showMotto && s.mottoLines.length > 0 ? (
             <div className={styles.motto}>

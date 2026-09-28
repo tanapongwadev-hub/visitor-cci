@@ -122,6 +122,8 @@ export type PosterSettings = {
   companyNameEn: string;
   companyNameTh: string;
   welcomeText: string;
+  /** อัตราขยายขนาดโลโก้ (1 = ขนาดปกติ, 0.5–2) */
+  logoScale: number;
   showMotto: boolean;
   mottoLines: string[];
   thanksEn: string;
@@ -156,6 +158,7 @@ export const DEFAULT_SETTINGS: PosterSettings = {
   companyNameEn: "CHIEWCHAN INDUSTRY (1989) CO., LTD.",
   companyNameTh: "บริษัท เชี่ยวชาญ อินดัสทรี่ (1989) จำกัด",
   welcomeText: "WELCOME TO",
+  logoScale: 1,
   showMotto: true,
   mottoLines: ["PEOPLE", "PARTNERSHIP", "A BRIGHTER", "TOMORROW"],
   thanksEn: "THANK YOU FOR VISITING US",

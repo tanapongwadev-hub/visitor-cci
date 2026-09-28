@@ -912,6 +912,33 @@ function SettingsTab({
     <>
       <Card title="ส่วนหัว">
         <div className="flex flex-col gap-2">
+          <Field label="ขนาดโลโก้">
+            <div className="flex items-center gap-3">
+              <input
+                type="range"
+                min={0.5}
+                max={2}
+                step={0.05}
+                value={s.logoScale}
+                onChange={(e) => onUpdate({ logoScale: Number(e.target.value) })}
+                className="h-1.5 flex-1 accent-teal-700"
+              />
+              <span className="w-12 shrink-0 text-right text-sm tabular-nums text-zinc-600 dark:text-zinc-300">
+                {Math.round(s.logoScale * 100)}%
+              </span>
+              <button
+                type="button"
+                className={btnCls}
+                onClick={() => onUpdate({ logoScale: 1 })}
+                disabled={s.logoScale === 1}
+              >
+                100%
+              </button>
+            </div>
+            <p className="mt-1 text-[11px] leading-snug text-zinc-400">
+              ปรับได้ตั้งแต่ 50% ถึง 200% และดูผลได้ทันทีในตัวอย่างด้านขวา
+            </p>
+          </Field>
           <Field label="ข้อความต้อนรับ">
             <input value={s.welcomeText} onChange={(e) => onUpdate({ welcomeText: e.target.value })} className={inputCls} />
           </Field>
