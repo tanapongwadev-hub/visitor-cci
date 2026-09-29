@@ -31,8 +31,8 @@ export async function getScheduleForDate(date: string): Promise<ScheduleData> {
   return { date, dateLabel: formatDateLabel(date), rows: rows.map(toRow) };
 }
 
-/** รายการวันที่ที่มีข้อมูล (ล่าสุดก่อน) */
-export async function getDatesWithData(limit = 30): Promise<{ date: string; count: number }[]> {
+/** รายการวันที่ที่มีข้อมูลทั้งหมด (ล่าสุดก่อน) */
+export async function getDatesWithData(): Promise<{ date: string; count: number }[]> {
   const ds = await getDataSource();
   const raw: { date: string; count: string }[] = await ds
     .getRepository(VisitSchedule)
@@ -41,7 +41,6 @@ export async function getDatesWithData(limit = 30): Promise<{ date: string; coun
     .addSelect("COUNT(*)", "count")
     .groupBy("s.date")
     .orderBy("s.date", "DESC")
-    .limit(limit)
     .getRawMany();
   return raw.map((r) => ({ date: String(r.date).slice(0, 10), count: Number(r.count) }));
 }

@@ -618,28 +618,152 @@ type ScheduleTabProps = {
   onDiscard: () => void;
 };
 
+const DATE_PAGE_SIZE = 7;
+const weekdayFormatter = new Intl.DateTimeFormat("th-TH", {
+  weekday: "long",
+  timeZone: "Asia/Bangkok",
+});
+
+function formatWeekday(date: string): string {
+  return weekdayFormatter.format(new Date(`${date}T12:00:00+07:00`));
+}
+
 function ScheduleTab(p: ScheduleTabProps) {
+  const selectedDateIndex = p.dates.findIndex((item) => item.date === p.date);
+  const [datePage, setDatePage] = useState(() =>
+    selectedDateIndex >= 0 ? Math.floor(selectedDateIndex / DATE_PAGE_SIZE) + 1 : 1,
+  );
+  const pageCount = Math.max(1, Math.ceil(p.dates.length / DATE_PAGE_SIZE));
+  const currentPage = Math.min(datePage, pageCount);
+  const pageStart = (currentPage - 1) * DATE_PAGE_SIZE;
+  const visibleDates = p.dates.slice(pageStart, pageStart + DATE_PAGE_SIZE);
+  const firstPageButton = Math.min(Math.max(1, currentPage - 2), Math.max(1, pageCount - 4));
+  const pageButtons = Array.from(
+    { length: Math.min(5, pageCount) },
+    (_, index) => firstPageButton + index,
+  );
+
   return (
     <>
-      <Card title="วันที่มีข้อมูล">
+      <Card
+        title="วันที่มีข้อมูล"
+        actions={
+          p.dates.length ? (
+            <span className="rounded-full bg-teal-50 px-2.5 py-1 text-xs font-medium text-teal-800 dark:bg-teal-950 dark:text-teal-300">
+              {p.dates.length} วัน
+            </span>
+          ) : undefined
+        }
+      >
         {p.dates.length === 0 ? (
-          <p className="text-sm text-zinc-500">ยังไม่มีข้อมูล</p>
+          <div className="rounded-lg border border-dashed border-zinc-300 px-4 py-7 text-center dark:border-zinc-700">
+            <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">ยังไม่มีวันที่บันทึกไว้</p>
+            <p className="mt-1 text-xs text-zinc-500">เพิ่มรายการนัดหมายด้านล่างแล้วกดบันทึก วันที่จะปรากฏที่นี่</p>
+          </div>
         ) : (
-          <div className="flex flex-wrap gap-1.5">
-            {p.dates.map((d) => (
+          <div className="overflow-hidden rounded-lg border border-zinc-200 dark:border-zinc-700">
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[520px] border-collapse text-left text-sm">
+                <thead className="bg-zinc-50 text-[11px] uppercase tracking-[0.08em] text-zinc-500 dark:bg-zinc-800/70 dark:text-zinc-400">
+                  <tr>
+                    <th scope="col" className="w-10 px-3 py-2.5 text-center font-medium">#</th>
+                    <th scope="col" className="px-3 py-2.5 font-medium">วันที่</th>
+                    <th scope="col" className="px-3 py-2.5 font-medium">วัน</th>
+                    <th scope="col" className="px-3 py-2.5 text-right font-medium">รายการนัด</th>
+                    <th scope="col" className="w-24 px-3 py-2.5"><span className="sr-only">เปิดตาราง</span></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
+                  {visibleDates.map((item, index) => {
+                    const active = item.date === p.date;
+                    return (
+                      <tr
+                        key={item.date}
+                        className={active ? "bg-teal-50/80 dark:bg-teal-950/30" : "bg-white dark:bg-zinc-900"}
+                      >
+                        <td className="relative px-3 py-2.5 text-center text-xs tabular-nums text-zinc-400">
+                          {active ? <span className="absolute inset-y-0 left-0 w-1 bg-teal-600" aria-hidden="true" /> : null}
+                          {pageStart + index + 1}
+                        </td>
+                        <td className="px-3 py-2.5">
+                          <time
+                            dateTime={item.date}
+                            className={`font-medium tabular-nums ${active ? "text-teal-800 dark:text-teal-300" : "text-zinc-900 dark:text-zinc-100"}`}
+                          >
+                            {formatDateTh(item.date)}
+                          </time>
+                          {active ? (
+                            <span className="ml-2 rounded bg-teal-700 px-1.5 py-0.5 text-[10px] font-semibold text-white">กำลังเปิด</span>
+                          ) : null}
+                        </td>
+                        <td className="px-3 py-2.5 text-zinc-500 dark:text-zinc-400">{formatWeekday(item.date)}</td>
+                        <td className="px-3 py-2.5 text-right">
+                          <span className="inline-flex min-w-8 justify-center rounded-md bg-zinc-100 px-2 py-1 text-xs font-semibold tabular-nums text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+                            {item.count}
+                          </span>
+                        </td>
+                        <td className="px-3 py-2.5 text-right">
+                          <button
+                            type="button"
+                            onClick={() => p.onChangeDate(item.date)}
+                            disabled={p.pending || active}
+                            aria-current={active ? "date" : undefined}
+                            className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 disabled:cursor-default ${
+                              active
+                                ? "text-teal-700 dark:text-teal-300"
+                                : "text-zinc-600 hover:bg-teal-700 hover:text-white dark:text-zinc-300"
+                            }`}
+                          >
+                            {active ? "เปิดอยู่" : "เปิด →"}
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 border-t border-zinc-200 bg-zinc-50 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-800/50">
+              <p className="mr-auto text-xs text-zinc-500">
+                แสดง {pageStart + 1}–{Math.min(pageStart + DATE_PAGE_SIZE, p.dates.length)} จาก {p.dates.length} วัน
+              </p>
               <button
-                key={d.date}
-                onClick={() => p.onChangeDate(d.date)}
-                disabled={p.pending}
-                className={`rounded-full border px-2.5 py-0.5 text-xs ${
-                  d.date === p.date
-                    ? "border-teal-700 bg-teal-700 text-white"
-                    : "border-zinc-300 hover:bg-zinc-100 dark:border-zinc-600 dark:hover:bg-zinc-800"
-                }`}
+                type="button"
+                className={`${btnCls} px-2.5 py-1 text-xs`}
+                onClick={() => setDatePage(Math.max(1, currentPage - 1))}
+                disabled={currentPage === 1}
+                aria-label="หน้าก่อนหน้า"
               >
-                {d.date} <span className="opacity-70">({d.count})</span>
+                ‹
               </button>
-            ))}
+              <div className="flex items-center gap-1" aria-label="เลือกหน้าวันที่">
+                {pageButtons.map((page) => (
+                  <button
+                    type="button"
+                    key={page}
+                    onClick={() => setDatePage(page)}
+                    aria-current={page === currentPage ? "page" : undefined}
+                    className={`h-7 min-w-7 rounded-md px-1.5 text-xs font-medium ${
+                      page === currentPage
+                        ? "bg-teal-700 text-white"
+                        : "text-zinc-600 hover:bg-zinc-200 dark:text-zinc-300 dark:hover:bg-zinc-700"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+              </div>
+              <button
+                type="button"
+                className={`${btnCls} px-2.5 py-1 text-xs`}
+                onClick={() => setDatePage(Math.min(pageCount, currentPage + 1))}
+                disabled={currentPage === pageCount}
+                aria-label="หน้าถัดไป"
+              >
+                ›
+              </button>
+            </div>
           </div>
         )}
       </Card>
