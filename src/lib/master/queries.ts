@@ -5,7 +5,7 @@ import { EMPTY_MASTER, isMasterType, type MasterData } from "./types";
 export async function getMasterData(): Promise<MasterData> {
   const ds = await getDataSource();
   const items = await ds.getRepository(MasterItem).find({ order: { name: "ASC" } });
-  const data: MasterData = { room: [], company: [], host: [], department: [] };
+  const data: MasterData = { room: [], company: [], visitor: [], host: [], department: [] };
   for (const it of items) {
     if (!isMasterType(it.type)) continue;
     data[it.type].push({ id: it.id, type: it.type, name: it.name, detail: it.detail });

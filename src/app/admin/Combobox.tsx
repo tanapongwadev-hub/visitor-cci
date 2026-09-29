@@ -64,7 +64,6 @@ export default function Combobox({
     };
     document.addEventListener("mousedown", onDown);
     return () => document.removeEventListener("mousedown", onDown);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   // เลื่อนรายการที่ active ให้เห็น

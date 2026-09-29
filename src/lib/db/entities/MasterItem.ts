@@ -7,14 +7,14 @@ import {
   Index,
 } from "typeorm";
 
-/** ข้อมูลหลัก (master data): ห้องประชุม / บริษัท-กิจกรรม / ผู้รับแขก / ฝ่าย-แผนก */
+/** ข้อมูลหลัก (master data): ห้องประชุม / บริษัท-กิจกรรม / ผู้มาติดต่อ / ผู้รับแขก / ฝ่าย-แผนก */
 @Entity({ name: "master_items" })
 @Index(["type", "name"], { unique: true })
 export class MasterItem {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  /** room | company | host | department */
+  /** room | company | visitor | host | department */
   @Column({ type: "varchar", length: 20 })
   type: string;
 

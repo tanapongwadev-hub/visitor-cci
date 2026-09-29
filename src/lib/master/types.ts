@@ -1,8 +1,9 @@
-export type MasterType = "room" | "company" | "host" | "department";
+export type MasterType = "room" | "company" | "visitor" | "host" | "department";
 
 export const MASTER_TYPES: { type: MasterType; label: string; detailLabel?: string }[] = [
   { type: "room", label: "ห้องประชุม" },
   { type: "company", label: "บริษัท / กิจกรรม" },
+  { type: "visitor", label: "รายชื่อผู้มาติดต่อ" },
   { type: "host", label: "ผู้รับแขก", detailLabel: "ฝ่าย / แผนก" },
   { type: "department", label: "ฝ่าย / แผนก" },
 ];
@@ -20,7 +21,7 @@ export type MasterItemDto = {
 
 export type MasterData = Record<MasterType, MasterItemDto[]>;
 
-export const EMPTY_MASTER: MasterData = { room: [], company: [], host: [], department: [] };
+export const EMPTY_MASTER: MasterData = { room: [], company: [], visitor: [], host: [], department: [] };
 
 export function isMasterType(t: unknown): t is MasterType {
   return MASTER_TYPES.some((m) => m.type === t);

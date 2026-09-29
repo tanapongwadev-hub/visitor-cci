@@ -61,7 +61,8 @@ export async function deleteMaster(id: string): Promise<MasterData> {
 }
 
 /**
- * นำเข้าค่าที่ใช้อยู่แล้วในตารางนัดทั้งหมด (ห้อง / บริษัท / ผู้รับแขก+ฝ่าย / ฝ่าย)
+ * นำเข้าค่าที่ใช้อยู่แล้วในตารางนัดทั้งหมด
+ * (ห้อง / บริษัท / รายชื่อผู้มาติดต่อ / ผู้รับแขก+ฝ่าย / ฝ่าย)
  * เข้าข้อมูลหลัก — ข้ามค่าที่มีอยู่แล้ว
  */
 export async function importMasterFromSchedules(): Promise<{ data: MasterData; added: number }> {
@@ -83,6 +84,7 @@ export async function importMasterFromSchedules(): Promise<{ data: MasterData; a
   for (const r of rows) {
     push("room", r.room);
     push("company", r.company);
+    for (const visitor of r.visitorNames.split("\n")) push("visitor", visitor);
     push("host", r.hostName, r.hostDept);
     push("department", r.hostDept);
   }

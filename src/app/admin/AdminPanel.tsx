@@ -728,6 +728,13 @@ function RowEditor({
   onRemove: () => void;
 }) {
   const dup = duplicateWith && duplicateWith.length > 0;
+  // เลือกรายชื่อผู้มาติดต่อจากข้อมูลหลักแล้วต่อท้าย textarea (หนึ่งรายการต่อหนึ่งบรรทัด)
+  const [visitorPick, setVisitorPick] = useState("");
+  const addVisitor = (name: string) => {
+    const names = row.visitorNames.split("\n").map((n) => n.trim()).filter(Boolean);
+    if (!names.some((n) => n.toLocaleLowerCase() === name.toLocaleLowerCase())) names.push(name);
+    onUpdate({ visitorNames: names.join("\n") });
+  };
   // ช่องค้นหาผู้รับแขกจากข้อมูลหลัก — เลือกแล้วต่อท้ายรายชื่อ (ผู้รับแขกมีได้หลายคน) แล้วล้างช่อง
   const [hostPick, setHostPick] = useState("");
   const addHost = (name: string, dept?: string) => {
@@ -738,6 +745,7 @@ function RowEditor({
   const opts = {
     room: master.room.map((m) => ({ value: m.name })),
     company: master.company.map((m) => ({ value: m.name })),
+    visitor: master.visitor.map((m) => ({ value: m.name })),
     host: master.host.map((m) => ({ value: m.name, detail: m.detail || undefined })),
     department: master.department.map((m) => ({ value: m.name })),
   };
@@ -820,6 +828,24 @@ function RowEditor({
               rows={3}
               placeholder={"MR. HATTORI, MR. SHUICHI\nMR. WEERANAH"}
               className={inputCls}
+            />
+          </Field>
+          <Field label="เพิ่มรายชื่อจากข้อมูลหลัก">
+            <Combobox
+              value={visitorPick}
+              onChange={setVisitorPick}
+              onSelect={(o) => {
+                addVisitor(o.value);
+                setVisitorPick("");
+              }}
+              options={opts.visitor}
+              placeholder="ค้นหารายชื่อ…"
+              className={inputCls}
+              onCreate={async (v) => {
+                await onQuickAdd("visitor", v);
+                addVisitor(v);
+                setTimeout(() => setVisitorPick(""));
+              }}
             />
           </Field>
         </Group>

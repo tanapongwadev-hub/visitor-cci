@@ -77,7 +77,7 @@ npm run db:seed -- 2026-10-01  # ระบุวันที่เอง
 src/lib/db/entities/
   VisitSchedule.ts       # ตารางนัดรายวัน (visit_schedules)
   Setting.ts             # key-value JSON (settings) — key "poster" เก็บค่าตั้งค่าโปสเตอร์
-  MasterItem.ts          # ข้อมูลหลัก (master_items): type = room | company | host | department
+  MasterItem.ts          # ข้อมูลหลัก (master_items): type = room | company | visitor | host | department
 src/lib/schedule/
   queries.ts             # อ่านข้อมูล (schedule ตามวัน, settings, วันที่ที่มีข้อมูล)
   actions.ts             # Server Actions: saveSchedule / copySchedule / savePosterSettings
