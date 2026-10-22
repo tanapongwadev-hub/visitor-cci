@@ -14,13 +14,17 @@ export function useLiveSettings(
   onChange: (next: PosterSettings) => void,
   enabled = true,
   intervalMs = SETTINGS_POLL_MS,
+  // วันที่ปัจจุบันตามนาฬิกา server (ไม่ใช่นาฬิกาของเครื่องที่เปิดหน้านี้) — เรียกทุกรอบ poll
+  onToday?: (today: string) => void,
 ) {
   // เก็บค่าล่าสุดใน ref เพื่อไม่ต้องสร้าง interval ใหม่ทุกครั้งที่ current/onChange เปลี่ยน
   const currentRef = useRef("");
   const onChangeRef = useRef(onChange);
+  const onTodayRef = useRef(onToday);
   useEffect(() => {
     currentRef.current = JSON.stringify(current);
     onChangeRef.current = onChange;
+    onTodayRef.current = onToday;
   });
 
   useEffect(() => {
@@ -35,8 +39,10 @@ export function useLiveSettings(
           headers: { "ngrok-skip-browser-warning": "1" },
         });
         if (!res.ok || stopped) return;
-        const next = (await res.json()) as PosterSettings;
-        if (!stopped && JSON.stringify(next) !== currentRef.current) onChangeRef.current(next);
+        const { today, ...next } = (await res.json()) as PosterSettings & { today?: string };
+        if (stopped) return;
+        if (today) onTodayRef.current?.(today);
+        if (JSON.stringify(next) !== currentRef.current) onChangeRef.current(next as PosterSettings);
       } catch {
         // เครือข่ายหลุดชั่วคราว — รอรอบถัดไป
       }

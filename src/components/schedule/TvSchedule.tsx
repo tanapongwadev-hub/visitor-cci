@@ -6,7 +6,7 @@ import SchedulePoster from "./SchedulePoster";
 import { todayBangkok } from "./types";
 import type { PosterSettings, ScheduleData, ScheduleRow } from "./types";
 import styles from "./tv.module.css";
-import { useLiveSettings } from "./useLiveSettings";
+import { useLiveSettings, SETTINGS_POLL_MS } from "./useLiveSettings";
 
 const POSTER_WIDTH = 1024;
 /** ความสูงขั้นต่ำของโปสเตอร์ (หน่วย px ที่กว้าง 1024) — เท่าโปสเตอร์ต้นฉบับ 2:3 เพื่อให้มีที่ให้แถวรายการเสมอ */
@@ -44,7 +44,11 @@ export default function TvSchedule({ data, settings: settingsProp, size, preview
     setLiveSettings(settingsProp);
   }
   const settings = liveSettings;
-  useLiveSettings(settings, setLiveSettings, !preview);
+  // วันที่ปัจจุบันตามนาฬิกา server — ใช้ตรวจการข้ามวันแทนนาฬิกาของจอ TV เอง (ซึ่งอาจตั้งผิด)
+  const serverTodayRef = useRef<string | null>(null);
+  useLiveSettings(settings, setLiveSettings, !preview, SETTINGS_POLL_MS, (today) => {
+    serverTodayRef.current = today;
+  });
 
   // ขนาด viewport จริง (ใช้เมื่อไม่ได้กำหนด size)
   useEffect(() => {
@@ -157,7 +161,8 @@ export default function TvSchedule({ data, settings: settingsProp, size, preview
     if (preview) return;
     const ms = Math.max(10, settings.tvRefreshSec) * 1000;
     const id = setInterval(() => {
-      const today = todayBangkok();
+      // ใช้วันที่จาก server ถ้ามีแล้ว (poll มาเร็วกว่าตอน mount) ไม่งั้น fallback เป็นนาฬิกาเครื่องชั่วคราว
+      const today = serverTodayRef.current ?? todayBangkok();
       if (today !== data.date) {
         router.replace(`${pathname}?date=${today}`);
       } else {
